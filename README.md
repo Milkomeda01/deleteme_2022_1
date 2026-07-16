@@ -70,47 +70,21 @@ presence d'un select "environnement" supplementaire sont bases sur les
 captures d'ecran fournies - a confirmer/adapter dans `background.js`
 (`ENVIRONMENTS`) et `content/step1-preform.js` si besoin.
 
-## Limites connues / a verifier
+## Statut
 
-Le formulaire FLOA utilise des web components maison (`ds-selector`,
-`ds-select`, `ds-select-search`, ...) dont le fonctionnement interne n'a pas
-pu etre teste en direct. Deux champs sont particulierement a risque et
-meritent une verification manuelle systematique :
-
-- **Departement de naissance** : corrige (confirme par un retour terrain) -
-  `setDropdown` trouve maintenant le vrai `<select>` natif cache dans le
-  shadow DOM du composant.
-- **Ville de naissance** : corrige (inspection du shadow DOM) - la ligne
-  reellement cliquable est un `<li role="row">` RENDU DANS LE SHADOW DOM
-  du champ, pas les `<ds-select-search-option>` en DOM clair (qui ne sont
-  que la source de donnees projetee via `<slot>` et ne reagissent pas au
-  clic elles-memes). `pickFirstSuggestion` cible maintenant ce shadow DOM
-  en priorite.
-- **Assurances (Options)** : corrige (inspection du shadow DOM) - meme
-  souci que la ville : l'element avec `aria-checked` est un `<label>`
-  interne au shadow DOM de `ds-selector-insurance`, pas l'element hote.
-  `clickCustom`/`isChecked` ciblent desormais ce noeud interne
-  (`findShadowInteractive`) partout ou c'est pertinent, avec verification
-  et un 2e essai automatique. Le log indique clairement "PAS CONFIRME COCHE" si ca
-  echoue malgre tout.
-- **Ville de naissance (2e cause trouvee grace aux logs)** : le simple clic
-  sur l'element hote n'ouvrait pas la liste de suggestions - il fallait
-  donner le FOCUS au vrai `<input>` interne (comme le faisait l'ancienne
-  version). `pickFirstSuggestion` fait maintenant `focus()` +
-  evenements focus/focusin sur l'input avant de chercher les suggestions.
-- **Assurances (2e cause trouvee grace aux logs)** : les cartes
-  d'assurance n'etaient pas encore dans le DOM au moment ou le script les
-  cherchait ("element introuvable"), probablement charge apres coup
-  (recommandation calculee a part). `fillOptions` attend maintenant
-  qu'au moins une carte (`[data-insurance-type="ADE"]`) existe avant de
-  chercher les `data-testid` precis (jusqu'a 5s).
-- Le panneau flottant journalise pour chaque clic l'element precis cible
-  (`describeEl`) et si `aria-checked`/`aria-selected` est bien passe a
-  `true` juste apres, utile pour diagnostiquer tout nouveau cas.
+Toutes les etapes (identite, naissance, foyer, logement, profession,
+revenus, charges, options) sont confirmees fonctionnelles sur le terrain,
+y compris le departement, la ville de naissance et les assurances (qui ont
+necessite de cibler des elements internes au shadow DOM des composants -
+voir l'historique de commits pour le detail si besoin de retoucher).
 
 Le champ "Code secret" et le select "OUI/NON" juste apres, dans l'etape
-Options, sont volontairement laisses tels quels (voir commentaires dans
-`content/step2-formulaire.js`).
+Options, sont **volontairement laisses tels quels** (jamais remplis). Le
+bouton "Suivant" reste donc grise a la fin - **c'est normal et attendu** :
+ces deux champs sont probablement requis par le site, et on ne veut de
+toute facon jamais cliquer sur ce "Suivant" (il menerait a la Signature).
+A toi de les remplir et de continuer manuellement si tu veux poursuivre
+au-dela d'Options.
 
 ## Configuration
 

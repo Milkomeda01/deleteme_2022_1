@@ -135,21 +135,6 @@
     );
   }
 
-  // Description courte d'un element pour les logs de debug (tag + attributs
-  // cles), pour savoir EXACTEMENT quel noeud a ete cible sans avoir besoin
-  // de redemander une capture DevTools a chaque fois.
-  function describeEl(el) {
-    if (!el) return "null";
-    const attrs = ["id", "data-testid", "role", "aria-checked", "aria-selected", "tabindex"]
-      .map((a) => {
-        const v = el.getAttribute?.(a);
-        return v ? `${a}="${v}"` : null;
-      })
-      .filter(Boolean)
-      .join(" ");
-    return `<${el.tagName?.toLowerCase()}${attrs ? " " + attrs : ""}>`;
-  }
-
   // Sequence complete d'evenements souris + clavier (Espace/Entree), pour
   // maximiser les chances de declencher le handler du composant quel qu'il
   // soit (certains n'ecoutent que pointerdown/mouseup, d'autres seulement le
@@ -172,10 +157,7 @@
   // le noeud interne du shadow DOM quand il existe.
   function clickCustom(el) {
     if (!el) return false;
-    const shadowTarget = findShadowInteractive(el);
-    const target = shadowTarget || el;
-    const via = shadowTarget ? "shadow" : el.shadowRoot ? "hote (rien trouve dans le shadow)" : "hote (pas de shadow root)";
-    log(`  -> clic [${via}] sur ${describeEl(target)}`);
+    const target = findShadowInteractive(el) || el;
     return simulateClick(target);
   }
 
@@ -317,7 +299,6 @@
     // fonctionnait, avant d'etre simplifiee par erreur).
     const input = el.shadowRoot?.querySelector("input") || el.querySelector("input");
     const focusTarget = input || el;
-    log(`  -> focus/clic sur ${describeEl(focusTarget)} pour ouvrir les suggestions`);
     focusTarget.focus?.();
     focusTarget.dispatchEvent(new FocusEvent("focus", { bubbles: true, composed: true }));
     focusTarget.dispatchEvent(new FocusEvent("focusin", { bubbles: true, composed: true }));
@@ -344,12 +325,8 @@
       if (candidates[0]) {
         const target = candidates[0];
         const label = target.textContent.trim();
-        log(`  -> suggestion trouvee (pool ${poolIndex}) ${describeEl(target)} "${label}", clic...`);
         simulateClick(target);
         await sleep(300);
-        const confirmed =
-          target.getAttribute("aria-selected") === "true" || target.getAttribute("aria-checked") === "true";
-        log(`  -> apres clic: aria-selected/checked=${confirmed} (attr actuel: "${target.getAttribute("aria-selected") ?? target.getAttribute("aria-checked") ?? "aucun"}")`);
         return label;
       }
     }
@@ -532,11 +509,7 @@
     // Les cartes d'assurance semblent se charger un peu apres l'affichage
     // de l'etape (probablement une recommandation calculee/chargee a part) :
     // on attend qu'au moins une carte existe avant de chercher les data-testid.
-    const insuranceReady = await waitFor(
-      () => stepDiv.querySelector('[data-insurance-type="ADE"]'),
-      5000
-    );
-    log(`Cartes d'assurance detectees dans le DOM: ${Boolean(insuranceReady)}`);
+    await waitFor(() => stepDiv.querySelector('[data-insurance-type="ADE"]'), 5000);
 
     const adeTestId = INSURANCE_ADE_TESTID[CONFIG.insuranceADE];
     const adeEl = stepDiv.querySelector(`[data-testid="${adeTestId}"]`);
@@ -563,9 +536,8 @@
       log(`Pack Family Protect: ${CONFIG.insurancePFP} (element introuvable !)`, "warn");
     }
     await handleDialogs();
-
-    log('Code secret laisse VIDE (choix "code aleatoire" -> ce choix apparait seulement en essayant de valider, etape volontairement non declenchee).', "warn");
-    log('Champ OUI/NON apres le code secret : je ne connais pas son libelle exact -> laisse tel quel, VERIFIE-le toi-meme avant de continuer.', "warn");
+    // Code secret et champ OUI/NON juste apres : laisses volontairement tels
+    // quels, on n'y touche pas.
   }
 
   const STEP_HANDLERS = [
@@ -627,7 +599,7 @@
       const isLastStep = i === STEP_HANDLERS.length - 1;
       if (isLastStep) {
         log("Options remplies. ARRET VOLONTAIRE : je ne clique pas sur 'Suivant' (cela menerait a la Signature).");
-        log("Verifie tous les champs (departement/ville de naissance, profession, assurances, code secret, champ OUI/NON) puis continue toi-meme.");
+        log("Code secret et champ OUI/NON non remplis (volontairement) : le bouton 'Suivant' reste donc grise tant que tu ne les remplis pas toi-meme, c'est normal.");
         break;
       }
 
