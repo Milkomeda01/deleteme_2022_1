@@ -93,6 +93,13 @@ meritent une verification manuelle systematique :
   (`findShadowInteractive`) partout ou c'est pertinent, avec verification
   et un 2e essai automatique. Le log indique clairement "PAS CONFIRME COCHE" si ca
   echoue malgre tout.
+- **Ville/Assurances toujours en echec malgre le ciblage shadow DOM** : le
+  panneau flottant journalise maintenant, pour chaque clic, l'element
+  precis cible (`describeEl`) et si `aria-checked`/`aria-selected` est bien
+  passe a `true` juste apres. En cas de nouvel echec, une capture de ce
+  panneau (pas juste le formulaire) permettra de voir exactement quel
+  element a ete clique et pourquoi ca n'a pas "pris", plutot que de
+  redeviner a l'aveugle.
 
 Le champ "Code secret" et le select "OUI/NON" juste apres, dans l'etape
 Options, sont volontairement laisses tels quels (voir commentaires dans

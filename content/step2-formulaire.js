@@ -135,22 +135,48 @@
     );
   }
 
-  // Champs custom (ds-selector, ds-selector-insurance, ds-switch...) : un
-  // clic simule est l'interaction "utilisateur reelle" la plus fiable.
-  // Simule une vraie interaction souris (pas juste .click()) : certains
-  // composants maison n'ecoutent que pointerdown/mousedown/mouseup plutot
-  // que l'evenement synthetique "click", donc on envoie toute la sequence,
-  // sur le noeud interne du shadow DOM quand il existe.
-  function clickCustom(el) {
-    if (!el) return false;
-    const target = findShadowInteractive(el) || el;
+  // Description courte d'un element pour les logs de debug (tag + attributs
+  // cles), pour savoir EXACTEMENT quel noeud a ete cible sans avoir besoin
+  // de redemander une capture DevTools a chaque fois.
+  function describeEl(el) {
+    if (!el) return "null";
+    const attrs = ["id", "data-testid", "role", "aria-checked", "aria-selected", "tabindex"]
+      .map((a) => {
+        const v = el.getAttribute?.(a);
+        return v ? `${a}="${v}"` : null;
+      })
+      .filter(Boolean)
+      .join(" ");
+    return `<${el.tagName?.toLowerCase()}${attrs ? " " + attrs : ""}>`;
+  }
+
+  // Sequence complete d'evenements souris + clavier (Espace/Entree), pour
+  // maximiser les chances de declencher le handler du composant quel qu'il
+  // soit (certains n'ecoutent que pointerdown/mouseup, d'autres seulement le
+  // clavier pour l'accessibilite ARIA).
+  function simulateClick(target) {
+    if (!target) return false;
     const opts = { bubbles: true, cancelable: true, composed: true };
     target.dispatchEvent(new PointerEvent("pointerdown", opts));
     target.dispatchEvent(new MouseEvent("mousedown", opts));
     target.dispatchEvent(new PointerEvent("pointerup", opts));
     target.dispatchEvent(new MouseEvent("mouseup", opts));
     target.click();
+    target.dispatchEvent(new KeyboardEvent("keydown", { ...opts, key: " ", code: "Space" }));
+    target.dispatchEvent(new KeyboardEvent("keyup", { ...opts, key: " ", code: "Space" }));
     return true;
+  }
+
+  // Champs custom (ds-selector, ds-selector-insurance, ds-switch...) : un
+  // clic simule est l'interaction "utilisateur reelle" la plus fiable, sur
+  // le noeud interne du shadow DOM quand il existe.
+  function clickCustom(el) {
+    if (!el) return false;
+    const shadowTarget = findShadowInteractive(el);
+    const target = shadowTarget || el;
+    const via = shadowTarget ? "shadow" : el.shadowRoot ? "hote (rien trouve dans le shadow)" : "hote (pas de shadow root)";
+    log(`  -> clic [${via}] sur ${describeEl(target)}`);
+    return simulateClick(target);
   }
 
   function isChecked(el) {
@@ -266,7 +292,7 @@
         (o) => isVisible(o) && textRegex.test((o.textContent || "").trim())
       );
       if (match) {
-        match.click();
+        simulateClick(match);
         await sleep(200);
         return true;
       }
@@ -301,14 +327,19 @@
       document.querySelectorAll(genericSelector),
     ];
 
-    for (const pool of pools) {
-      const candidates = Array.from(pool)
+    for (let poolIndex = 0; poolIndex < pools.length; poolIndex++) {
+      const candidates = Array.from(pools[poolIndex])
         .filter((o) => isVisible(o) && (o.textContent || "").trim().length > 0)
         .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
       if (candidates[0]) {
-        const label = candidates[0].textContent.trim();
-        candidates[0].click();
-        await sleep(250);
+        const target = candidates[0];
+        const label = target.textContent.trim();
+        log(`  -> suggestion trouvee (pool ${poolIndex}) ${describeEl(target)} "${label}", clic...`);
+        simulateClick(target);
+        await sleep(300);
+        const confirmed =
+          target.getAttribute("aria-selected") === "true" || target.getAttribute("aria-checked") === "true";
+        log(`  -> apres clic: aria-selected/checked=${confirmed} (attr actuel: "${target.getAttribute("aria-selected") ?? target.getAttribute("aria-checked") ?? "aucun"}")`);
         return label;
       }
     }
