@@ -1,6 +1,6 @@
 // Orchestre les deux etapes :
-// 1) preform-front-prp.floa.com -> selection environnement/carte/identite, soumission
-// 2) preprod-souscrire.floabank.fr -> remplissage du parcours
+// 1) preform-front-{prp|val}.floa.com -> environnement/carte/identite, soumission
+// 2) {preprod|validation}-souscrire.floabank.fr -> remplissage du parcours
 //
 // Le parcours FLOA est une "one page" : une fois qu'on est dessus, l'URL ne
 // change plus. On n'injecte donc le script d'etape 2 qu'une seule fois par
@@ -9,29 +9,38 @@
 // Les 3 choix du popup (environnement / carte / identite) sont envoyes ici
 // via un message START_FLOW, stockes dans chrome.storage.local, et relus par
 // content/step1-preform.js une fois injecte sur la page du pre-formulaire.
-
-const PREFORM_HOST = "preform-front-prp.floa.com";
-// Chemin du pre-formulaire selon l'environnement choisi dans le popup. Le
-// chemin "validation-souscrire" est une supposition basee sur le nom donne -
-// A CONFIRMER / adapter si besoin.
-const ENVIRONMENT_PATHS = {
-  souscrire: "/souscrire",
-  "validation-souscrire": "/validation-souscrire",
+//
+// Chaque environnement a son PROPRE domaine de pre-formulaire et son PROPRE
+// domaine de formulaire final (pas juste un chemin qui change) :
+// - souscrire            : preform-front-prp.floa.com -> preprod-souscrire.floabank.fr
+// - validation-souscrire : preform-front-val.floa.com -> validation-souscrire.floabank.fr
+// Sur l'environnement "validation", il y a en plus un select "environnement"
+// AVANT le select carte (donc en position 0), qu'il faut positionner sur
+// "validation" - voir content/step1-preform.js.
+const ENVIRONMENTS = {
+  souscrire: {
+    preformHost: "preform-front-prp.floa.com",
+    preformPath: "/souscrire",
+    formulaireHost: "preprod-souscrire.floabank.fr",
+    needsEnvSelect: false,
+  },
+  "validation-souscrire": {
+    preformHost: "preform-front-val.floa.com",
+    preformPath: "/souscrire",
+    formulaireHost: "validation-souscrire.floabank.fr",
+    needsEnvSelect: true,
+  },
 };
 
-const FORMULAIRE_HOST = "preprod-souscrire.floabank.fr";
-// Le chemin exact differe entre la carte Cdiscount classique et la variante
-// CLA (mais le parcours/DOM est identique), donc on ne filtre plus que sur
-// le nom d'hote : des qu'on atterrit sur ce domaine, on injecte le script du
-// parcours, qui attend lui-meme que #cdiscountForm existe avant d'agir (et
-// se contente de logguer une erreur si ce n'est pas la bonne page).
+const PREFORM_HOSTS = Object.values(ENVIRONMENTS).map((e) => e.preformHost);
+const FORMULAIRE_HOSTS = Object.values(ENVIRONMENTS).map((e) => e.formulaireHost);
 
 let activeTabId = null;
 // Un onglet ne passe dans cet ensemble qu'une fois que
 // content/step2-formulaire.js a confirme avoir trouve #cdiscountForm (message
 // FORMULAIRE_DETECTED). Tant qu'aucune confirmation n'est recue, chaque
-// navigation sur le domaine reessaie l'injection (utile si la carte CLA passe
-// par une page intermediaire avant le vrai formulaire).
+// navigation sur un domaine de formulaire reessaie l'injection (utile si la
+// carte CLA passe par une page intermediaire avant le vrai formulaire).
 const confirmedFormulaireTabs = new Set();
 
 chrome.runtime.onMessage.addListener((message, sender) => {
@@ -44,14 +53,15 @@ chrome.runtime.onMessage.addListener((message, sender) => {
 });
 
 async function startFlow({ environment, cardChoice, person }) {
+  const env = ENVIRONMENTS[environment] || ENVIRONMENTS.souscrire;
+
   await chrome.storage.local.set({
+    floaEnvironment: environment || "souscrire",
     floaCardChoice: cardChoice || "cdiscount",
     floaPerson: person || "me",
   });
 
-  const path = ENVIRONMENT_PATHS[environment] || ENVIRONMENT_PATHS.souscrire;
-  const url = `https://${PREFORM_HOST}${path}`;
-
+  const url = `https://${env.preformHost}${env.preformPath}`;
   const tab = await chrome.tabs.create({ url });
   activeTabId = tab.id;
   confirmedFormulaireTabs.delete(tab.id);
@@ -68,7 +78,7 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
     return;
   }
 
-  if (url.hostname === PREFORM_HOST) {
+  if (PREFORM_HOSTS.includes(url.hostname)) {
     await chrome.scripting.executeScript({
       target: { tabId: details.tabId },
       files: ["content/step1-preform.js"],
@@ -76,7 +86,7 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
     return;
   }
 
-  if (url.hostname === FORMULAIRE_HOST) {
+  if (FORMULAIRE_HOSTS.includes(url.hostname)) {
     if (confirmedFormulaireTabs.has(details.tabId)) return;
     await chrome.scripting.executeScript({
       target: { tabId: details.tabId },

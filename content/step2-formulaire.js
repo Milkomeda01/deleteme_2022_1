@@ -129,9 +129,22 @@
     return true;
   }
 
-  // ds-select / ds-select-search : essaie valeur directe + evenements, PUIS
-  // (en secours) ouvre le composant et clique l'option visible correspondante,
-  // PUIS (dernier recours) simule une navigation clavier jusqu'a l'option.
+  // Cherche recursivement TOUS les <select> natifs du document, y compris a
+  // l'interieur de n'importe quel shadow DOM ouvert (le champ visible n'est
+  // parfois qu'une facade CSS, avec un vrai <select> natif superpose,
+  // dessine par le navigateur lui-meme quand on l'ouvre - c'est ce qui donne
+  // le menu deroulant natif observe en test).
+  function findAllSelectsDeep(root = document) {
+    const results = Array.from(root.querySelectorAll("select"));
+    const all = root.querySelectorAll("*");
+    for (const node of all) {
+      if (node.shadowRoot) results.push(...findAllSelectsDeep(node.shadowRoot));
+    }
+    return results;
+  }
+
+  // ds-select / ds-select-search : essaie plusieurs strategies dans l'ordre
+  // jusqu'a ce que l'une d'elles fonctionne.
   async function setDropdown(el, value, textRegex) {
     if (!el) return false;
 
@@ -144,18 +157,32 @@
       /* ignore */
     }
 
-    // Strategie B : <select> natif cache dans un shadow DOM ouvert
+    // Strategie B : <select> natif deja present dans un shadow DOM ouvert
     const shadowSelect = el.shadowRoot?.querySelector("select");
-    if (shadowSelect) {
-      setNativeValue(shadowSelect, value);
+    if (shadowSelect) setNativeValue(shadowSelect, value);
+
+    // Ouvre le composant (peut reveler/creer un <select> natif en secours,
+    // et est de toute facon necessaire pour les strategies suivantes).
+    el.click();
+    await sleep(350);
+
+    // Strategie B2 : <select> natif quelque part dans le document (souvent
+    // une facade cliquable + un vrai <select> superpose que le navigateur
+    // affiche nativement une fois ouvert), trouve par son contenu d'options.
+    const nativeSelects = findAllSelectsDeep();
+    const matchingSelect = nativeSelects.find((s) =>
+      Array.from(s.options).some((o) => o.value === value)
+    );
+    if (matchingSelect) {
+      setNativeValue(matchingSelect, value);
+      await sleep(200);
+      return true;
     }
 
-    await sleep(250);
-
-    // Strategie C : ouverture + clic sur l'option affichee (texte)
+    // Strategie C : clic sur l'option visible correspondante (texte)
     let ok = false;
     if (textRegex) {
-      ok = await openAndClickOption(el, textRegex);
+      ok = await openAndClickOption(el, textRegex, true);
     }
 
     // Strategie D (dernier recours) : navigation clavier jusqu'a la position
@@ -166,9 +193,11 @@
     return ok;
   }
 
-  async function openAndClickOption(el, textRegex) {
-    el.click();
-    await sleep(350);
+  async function openAndClickOption(el, textRegex, alreadyOpen = false) {
+    if (!alreadyOpen) {
+      el.click();
+      await sleep(350);
+    }
 
     const selector =
       '[role="option"], li, ds-select-option, ds-option, option, [class*="option"]';
@@ -190,18 +219,17 @@
     return false;
   }
 
-  // Ouvre le composant puis navigue au clavier (Fleche bas x N + Entree)
-  // jusqu'a l'option dont la <option value="..."> du DOM clair correspond.
-  // Fonctionne meme si la liste visible est entierement dans un shadow DOM
-  // ferme, tant que le composant gere le clavier sur son element hote.
+  // Navigue au clavier (Fleche bas x N + Entree) jusqu'a l'option dont la
+  // <option value="..."> du DOM clair correspond. Suppose que le composant
+  // est deja ouvert (appele en dernier recours depuis setDropdown). Fonctionne
+  // meme si la liste visible est entierement dans un shadow DOM ferme, tant
+  // que le composant gere le clavier sur son element hote.
   async function keyboardSelectByValue(el, value) {
     const options = Array.from(el.querySelectorAll("option"));
     const index = options.findIndex((o) => o.value === value);
     if (index === -1) return false;
 
     el.focus?.();
-    el.click();
-    await sleep(300);
     for (let i = 0; i <= index; i++) {
       el.dispatchEvent(
         new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, composed: true })

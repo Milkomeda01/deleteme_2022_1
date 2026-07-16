@@ -1,6 +1,11 @@
-// S'execute sur https://preform-front-prp.floa.com/{souscrire|validation-souscrire}
+// S'execute sur https://preform-front-{prp|val}.floa.com/souscrire
+// Sur l'environnement "validation", il y a un select "environnement" AVANT
+// le select carte : select 1 (index 0) = environnement, select 2 (index 1)
+// = carte, select 3 (index 2) = identite. Sur l'environnement standard, le
+// select environnement n'a pas besoin d'etre touche (valeur par defaut ok).
+//
 // Selectionne la carte choisie dans le popup (Cdiscount classique ou
-// Cdiscount CLA) dans le select 2 (index 1), et selon le choix "identite" :
+// Cdiscount CLA) dans le select 2, et selon le choix "identite" :
 // - "me"     -> selectionne le prenom/nom configures dans les Reglages de
 //               l'extension (par defaut Emile Cartier) dans le select 3.
 // - "random" -> ne touche pas au select 3 (laisse la valeur par defaut /
@@ -8,19 +13,21 @@
 // Puis clique sur le bouton "Poster les donnees".
 //
 // Je n'ai pas pu inspecter le DOM reel de cette page (acces bloque depuis mon
-// environnement), donc ce script cible les selects par POSITION (2e et 3e
-// <select> de la page, comme demande) et cherche les options par TEXTE plutot
-// que par id/value fige. Si la page a une structure differente, adapte les
-// index CARD_SELECT_INDEX / NAME_SELECT_INDEX ci-dessous.
+// environnement), donc ce script cible les selects par POSITION et cherche
+// les options par TEXTE plutot que par id/value fige. Si la page a une
+// structure differente, adapte les index ci-dessous.
 //
 // Choix lus depuis chrome.storage.local (ecrits par popup.js/background.js) :
-// "floaCardChoice" ("cdiscount" | "cdiscount_cla") et "floaPerson"
-// ("me" | "random"). Le prenom/nom pour "me" vient de chrome.storage.sync
-// ("myFirstName" / "myLastName", reglables via la page Options).
+// "floaEnvironment" ("souscrire" | "validation-souscrire"), "floaCardChoice"
+// ("cdiscount" | "cdiscount_cla") et "floaPerson" ("me" | "random"). Le
+// prenom/nom pour "me" vient de chrome.storage.sync ("myFirstName" /
+// "myLastName", reglables via la page Options).
 
 (function () {
+  const ENV_SELECT_INDEX = 0; // "select 1" (environnement, validation uniquement)
   const CARD_SELECT_INDEX = 1; // "select 2"
   const NAME_SELECT_INDEX = 2; // "select 3"
+  const ENV_MATCH = /validation/i;
   const SUBMIT_MATCH = /poster/i;
   const MAX_ATTEMPTS = 40; // ~20s
   const RETRY_DELAY_MS = 500;
@@ -62,12 +69,20 @@
     );
   }
 
-  function tryRun({ cardMatcher, cardChoice, person, firstNameMatch, lastNameMatch }) {
+  function tryRun({ cardMatcher, cardChoice, person, firstNameMatch, lastNameMatch, needsEnvSelect }) {
     const selects = document.querySelectorAll("select");
     if (selects.length <= NAME_SELECT_INDEX) return false; // pas encore prets
 
+    const envSelect = selects[ENV_SELECT_INDEX];
     const cardSelect = selects[CARD_SELECT_INDEX];
     const nameSelect = selects[NAME_SELECT_INDEX];
+
+    let envOk = true;
+    if (needsEnvSelect) {
+      const envOpt = setSelect(envSelect, [ENV_MATCH]);
+      envOk = Boolean(envOpt);
+      log(`Environnement demande: validation -> option retenue: "${envOpt ? envOpt.textContent.trim() : "AUCUNE"}"`);
+    }
 
     const cardOpt = setSelect(cardSelect, [cardMatcher]);
     log(`Carte demandee: ${cardChoice} -> option retenue: "${cardOpt ? cardOpt.textContent.trim() : "AUCUNE"}"`);
@@ -83,7 +98,7 @@
       log(`Identite demandee (select 3) -> option retenue: "${nameOpt ? nameOpt.textContent.trim() : "AUCUNE"}"`);
     }
 
-    if (!cardOpt || !nameOk) {
+    if (!envOk || !cardOpt || !nameOk) {
       log("Selection incomplete -> soumission ANNULEE. Verifie manuellement les selects.");
       return true; // on arrete de reessayer mais on ne soumet pas
     }
@@ -100,13 +115,16 @@
   }
 
   async function init() {
-    const { floaCardChoice, floaPerson } = await chrome.storage.local.get([
+    const { floaEnvironment, floaCardChoice, floaPerson } = await chrome.storage.local.get([
+      "floaEnvironment",
       "floaCardChoice",
       "floaPerson",
     ]);
+    const environment = floaEnvironment || "souscrire";
     const cardChoice = floaCardChoice || "cdiscount";
     const person = floaPerson || "me";
     const cardMatcher = buildCardMatcher(cardChoice);
+    const needsEnvSelect = environment === "validation-souscrire";
 
     let firstNameMatch = /emile/i;
     let lastNameMatch = /cartier/i;
@@ -123,7 +141,7 @@
     const interval = setInterval(() => {
       attempts += 1;
       if (
-        tryRun({ cardMatcher, cardChoice, person, firstNameMatch, lastNameMatch }) ||
+        tryRun({ cardMatcher, cardChoice, person, firstNameMatch, lastNameMatch, needsEnvSelect }) ||
         attempts >= MAX_ATTEMPTS
       ) {
         clearInterval(interval);
