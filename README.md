@@ -4,6 +4,8 @@ Extension Chrome (Manifest V3) pour PC. Au clic sur l'icone epinglee, un
 popup demande 3 choses, dans l'ordre :
 
 1. **Environnement** : `souscrire` (preprod) ou `validation-souscrire`.
+   (Un environnement production est prevu mais pas encore active : il manque
+   les URLs exactes, volontairement non devinees pour un site bancaire.)
 2. **Produit** : Carte Cdiscount ou Carte Cdiscount CLA.
 3. **Identite** (select "identite" du pre-formulaire) : "Moi" (le
    prenom/nom configures dans les Reglages de l'extension) ou "Aleatoire"
@@ -74,18 +76,19 @@ Le formulaire FLOA utilise des web components maison (`ds-selector`,
 pu etre teste en direct. Deux champs sont particulierement a risque et
 meritent une verification manuelle systematique :
 
-- **Ville de naissance** (champ de recherche/autocompletion) : peut ne pas
-  se remplir automatiquement selon le comportement exact du composant.
-- **Departement / Profession** (listes deroulantes) : un premier retour
-  terrain a montre que le departement ne se remplissait pas correctement.
-  Une capture d'ecran a montre un menu deroulant natif du navigateur en test
-  (donc probablement un vrai `<select>` cache dans un shadow DOM ou une
-  facade), donc `setDropdown` (dans `content/step2-formulaire.js`) essaie
-  maintenant, dans l'ordre : valeur directe, `<select>` natif deja present
-  dans un shadow DOM ouvert, **recherche de TOUT `<select>` natif du
-  document (y compris dans les shadow DOM ouverts) dont les options
-  correspondent**, clic sur l'option visible, puis navigation clavier. A
-  reverifier sur le terrain.
+- **Departement de naissance** : corrige (confirme par un retour terrain) -
+  `setDropdown` trouve maintenant le vrai `<select>` natif cache dans le
+  shadow DOM du composant.
+- **Ville de naissance** : le site propose une liste de suggestions des
+  qu'on ouvre le champ (sans avoir besoin de taper du texte). L'extension ne
+  tape donc plus rien et clique simplement la 1ere suggestion visible
+  (`pickFirstSuggestion`). A verifier que la ville retenue convient.
+- **Assurances (Options)** : les clics sur les cartes d'assurance
+  (emprunteur / Pack Family Protect) utilisent maintenant une vraie
+  sequence d'evenements souris (pointerdown/mousedown/mouseup/click) et
+  verifient que l'attribut `checked` est bien applique, avec un 2e essai
+  automatique sinon. Le log indique clairement "PAS CONFIRME COCHE" si ca
+  echoue malgre tout.
 
 Le champ "Code secret" et le select "OUI/NON" juste apres, dans l'etape
 Options, sont volontairement laisses tels quels (voir commentaires dans

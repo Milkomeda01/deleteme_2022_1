@@ -22,7 +22,8 @@
   const CONFIG = {
     nationality: "France", // France | UE | Autre
     birthDepartment: "01", // code departement, ex "33"
-    birthCity: "Bourg-en-Bresse", // ville de naissance (recherche)
+    // Ville de naissance : on ne tape plus de texte, on ouvre le champ et on
+    // prend la 1ere suggestion proposee par le site (comportement demande).
 
     maritalStatus: "C", // C K M P D S V A
     kids: 0, // 0..7
@@ -36,8 +37,8 @@
     incomeBracket: 6, // 0..6  (6 = superieur a 3000 euros)
     chargesBracket: 1, // 0..5  (1 = 250 a 500 euros)
 
-    insuranceADE: "refuse", // premium | confort | essentielle | refuse
-    insurancePFP: "refuse", // plus | standard | refuse
+    insuranceADE: "essentielle", // premium | confort | essentielle | refuse
+    insurancePFP: "standard", // plus | standard | refuse
 
     declineGoldUpsell: true,
   };
@@ -123,10 +124,41 @@
 
   // Champs custom (ds-selector, ds-selector-insurance, ds-switch...) : un
   // clic simule est l'interaction "utilisateur reelle" la plus fiable.
+  // Simule une vraie interaction souris (pas juste .click()) : certains
+  // composants maison n'ecoutent que pointerdown/mousedown/mouseup plutot
+  // que l'evenement synthetique "click", donc on envoie toute la sequence.
   function clickCustom(el) {
     if (!el) return false;
+    const opts = { bubbles: true, cancelable: true, composed: true };
+    el.dispatchEvent(new PointerEvent("pointerdown", opts));
+    el.dispatchEvent(new MouseEvent("mousedown", opts));
+    el.dispatchEvent(new PointerEvent("pointerup", opts));
+    el.dispatchEvent(new MouseEvent("mouseup", opts));
     el.click();
     return true;
+  }
+
+  function isChecked(el) {
+    if (!el) return false;
+    return (
+      el.hasAttribute("checked") ||
+      el.getAttribute("aria-checked") === "true" ||
+      el.shadowRoot?.querySelector('input[type="radio"]:checked, input[type="checkbox"]:checked') != null
+    );
+  }
+
+  // Clique et verifie que ca a bien "pris" (attribut checked/aria-checked).
+  // Reessaie une fois si non confirme, pour les composants un peu lents a
+  // reagir. Retourne le resultat de la verification (true/false), utile
+  // pour logguer un avertissement clair si ca n'a vraiment pas fonctionne.
+  async function clickAndVerify(el, waitMs = 300) {
+    if (!el) return false;
+    clickCustom(el);
+    await sleep(waitMs);
+    if (isChecked(el)) return true;
+    clickCustom(el);
+    await sleep(waitMs);
+    return isChecked(el);
   }
 
   // Cherche recursivement TOUS les <select> natifs du document, y compris a
@@ -219,6 +251,34 @@
     return false;
   }
 
+  // Ouvre un champ (ds-select-search...) et clique la 1ere suggestion visible
+  // proposee par le site, sans se soucier de son texte. Utilise pour la
+  // ville de naissance : le site propose une liste par defaut des qu'on
+  // ouvre le champ (pas besoin/pas fiable de taper un texte de recherche).
+  async function pickFirstSuggestion(el) {
+    el.click();
+    await sleep(600);
+
+    const selector =
+      '[role="option"], [role="row"], [role="gridcell"], li, ds-select-option, ds-option, [class*="option"], [class*="suggestion"], [class*="result"]';
+    const pools = [
+      ...document.querySelectorAll(selector),
+      ...(el.shadowRoot ? el.shadowRoot.querySelectorAll(selector) : []),
+    ];
+
+    const candidates = pools
+      .filter((o) => isVisible(o) && (o.textContent || "").trim().length > 0)
+      .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+
+    if (candidates[0]) {
+      const label = candidates[0].textContent.trim();
+      candidates[0].click();
+      await sleep(250);
+      return label;
+    }
+    return null;
+  }
+
   // Navigue au clavier (Fleche bas x N + Entree) jusqu'a l'option dont la
   // <option value="..."> du DOM clair correspond. Suppose que le composant
   // est deja ouvert (appele en dernier recours depuis setDropdown). Fonctionne
@@ -241,18 +301,6 @@
     );
     await sleep(250);
     return true;
-  }
-
-  // Champ texte/recherche encapsule dans un shadow DOM (ds-input-text,
-  // ds-select-search...) : on tape le texte dans l'<input> reel puis on
-  // clique la suggestion correspondante.
-  async function fillSearchField(el, text, suggestionRegex) {
-    const input = el.shadowRoot?.querySelector("input") || el.querySelector("input");
-    if (!input) return false;
-    input.focus();
-    setNativeValue(input, text);
-    await sleep(900); // laisse le temps a l'auto-completion de repondre
-    return openAndClickOption(el, suggestionRegex || new RegExp(text.split(/\s/)[0], "i"));
   }
 
   // ------------------------- panneau de log --------------------------------
@@ -344,12 +392,12 @@
 
     const citySearch = stepDiv.querySelector("ds-select-search");
     if (citySearch) {
-      const ok = await fillSearchField(citySearch, CONFIG.birthCity);
+      const picked = await pickFirstSuggestion(citySearch);
       log(
-        ok
-          ? `Ville de naissance saisie: ${CONFIG.birthCity}`
-          : `Ville de naissance "${CONFIG.birthCity}" non confirmee automatiquement -> VERIFIE et selectionne-la manuellement.`,
-        ok ? "info" : "warn"
+        picked
+          ? `Ville de naissance: 1ere suggestion retenue "${picked}"`
+          : "Ville de naissance: aucune suggestion trouvee -> a remplir manuellement.",
+        picked ? "info" : "warn"
       );
     } else {
       log("Champ ville de naissance introuvable -> a remplir manuellement.", "warn");
@@ -406,16 +454,28 @@
   async function fillOptions(stepDiv) {
     const adeTestId = INSURANCE_ADE_TESTID[CONFIG.insuranceADE];
     const adeEl = stepDiv.querySelector(`[data-testid="${adeTestId}"]`);
-    clickCustom(adeEl);
-    log(`Assurance emprunteur: ${CONFIG.insuranceADE}${adeEl ? "" : " (element introuvable !)"}`, adeEl ? "info" : "warn");
-    await sleep(300);
+    if (adeEl) {
+      const confirmed = await clickAndVerify(adeEl);
+      log(
+        `Assurance emprunteur: ${CONFIG.insuranceADE}${confirmed ? "" : " -> PAS CONFIRME COCHE, verifie manuellement"}`,
+        confirmed ? "info" : "warn"
+      );
+    } else {
+      log(`Assurance emprunteur: ${CONFIG.insuranceADE} (element introuvable !)`, "warn");
+    }
     await handleDialogs();
 
     const pfpTestId = INSURANCE_PFP_TESTID[CONFIG.insurancePFP];
     const pfpEl = stepDiv.querySelector(`[data-testid="${pfpTestId}"]`);
-    clickCustom(pfpEl);
-    log(`Pack Family Protect: ${CONFIG.insurancePFP}${pfpEl ? "" : " (element introuvable !)"}`, pfpEl ? "info" : "warn");
-    await sleep(300);
+    if (pfpEl) {
+      const confirmed = await clickAndVerify(pfpEl);
+      log(
+        `Pack Family Protect: ${CONFIG.insurancePFP}${confirmed ? "" : " -> PAS CONFIRME COCHE, verifie manuellement"}`,
+        confirmed ? "info" : "warn"
+      );
+    } else {
+      log(`Pack Family Protect: ${CONFIG.insurancePFP} (element introuvable !)`, "warn");
+    }
     await handleDialogs();
 
     log('Code secret laisse VIDE (choix "code aleatoire" -> ce choix apparait seulement en essayant de valider, etape volontairement non declenchee).', "warn");
