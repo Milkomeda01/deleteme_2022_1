@@ -79,12 +79,21 @@ necessite de cibler des elements internes au shadow DOM des composants -
 voir l'historique de commits pour le detail si besoin de retoucher).
 
 Le champ "Code secret" et le select "OUI/NON" juste apres, dans l'etape
-Options, sont **volontairement laisses tels quels** (jamais remplis). Le
-bouton "Suivant" reste donc grise a la fin - **c'est normal et attendu** :
-ces deux champs sont probablement requis par le site, et on ne veut de
-toute facon jamais cliquer sur ce "Suivant" (il menerait a la Signature).
-A toi de les remplir et de continuer manuellement si tu veux poursuivre
-au-dela d'Options.
+Options, sont **volontairement laisses tels quels** (jamais remplis) - ils
+ne bloquent pas le bouton "Suivant" (le select OUI/NON est deja sur "OUI"
+par defaut).
+
+Si le bouton "Suivant" apparait grise malgre des assurances visuellement
+cochees (`aria-checked="true"`), c'etait du au double-declenchement d'une
+activation clic + espace sur le meme clic simule, qui pouvait laisser
+l'etat interne du formulaire incoherent malgre un rendu visuel correct -
+corrige (`simulateClick` n'envoie plus qu'une seule activation, comme un
+clic humain).
+
+Pour rappel, en cliquant sur ce "Suivant" toi-meme depuis Options, le
+parcours passe par une pop-in de proposition de carte Gold avant
+d'atteindre la Signature (pas directement) - l'extension ne clique de
+toute facon jamais ce bouton.
 
 ## Configuration
 

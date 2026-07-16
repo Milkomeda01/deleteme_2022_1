@@ -135,10 +135,11 @@
     );
   }
 
-  // Sequence complete d'evenements souris + clavier (Espace/Entree), pour
-  // maximiser les chances de declencher le handler du composant quel qu'il
-  // soit (certains n'ecoutent que pointerdown/mouseup, d'autres seulement le
-  // clavier pour l'accessibilite ARIA).
+  // Une seule sequence pointer+souris, comme un vrai clic humain unique.
+  // (On a retire l'activation clavier Espace en plus : sur un composant qui
+  // traite chaque activation comme une BASCULE coche/decoche, cumuler clic
+  // ET espace pouvait re-decocher juste apres avoir coche, laissant l'etat
+  // interne du formulaire incoherent malgre un aria-checked="true" visible.)
   function simulateClick(target) {
     if (!target) return false;
     const opts = { bubbles: true, cancelable: true, composed: true };
@@ -147,8 +148,6 @@
     target.dispatchEvent(new PointerEvent("pointerup", opts));
     target.dispatchEvent(new MouseEvent("mouseup", opts));
     target.click();
-    target.dispatchEvent(new KeyboardEvent("keydown", { ...opts, key: " ", code: "Space" }));
-    target.dispatchEvent(new KeyboardEvent("keyup", { ...opts, key: " ", code: "Space" }));
     return true;
   }
 
