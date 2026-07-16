@@ -50,14 +50,55 @@ let activeTabId = null;
 // carte CLA passe par une page intermediaire avant le vrai formulaire).
 const confirmedFormulaireTabs = new Set();
 
-chrome.runtime.onMessage.addListener((message, sender) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "START_FLOW") {
     startFlow(message);
   }
   if (message?.type === "FORMULAIRE_DETECTED" && sender.tab) {
     confirmedFormulaireTabs.add(sender.tab.id);
   }
+  if (message?.type === "TRUSTED_CLICK" && sender.tab) {
+    trustedClick(sender.tab.id, message.x, message.y)
+      .then((ok) => sendResponse({ ok }))
+      .catch((error) => sendResponse({ ok: false, error: String(error) }));
+    return true; // reponse asynchrone
+  }
 });
+
+// Simule un VRAI clic (indiscernable d'un clic humain, event.isTrusted
+// inclus) via le protocole DevTools plutot que du JS de page. Necessaire
+// pour certaines actions (ex: consentement assurance) que le site semble
+// exiger d'une vraie interaction utilisateur, qu'aucun evenement synthetique
+// (dispatchEvent/.click()) ne peut jamais avoir (limitation du navigateur,
+// pas de notre code).
+async function trustedClick(tabId, x, y) {
+  const target = { tabId };
+  await chrome.debugger.attach(target, "1.3");
+  try {
+    await chrome.debugger.sendCommand(target, "Input.dispatchMouseEvent", {
+      type: "mouseMoved",
+      x,
+      y,
+    });
+    await chrome.debugger.sendCommand(target, "Input.dispatchMouseEvent", {
+      type: "mousePressed",
+      x,
+      y,
+      button: "left",
+      clickCount: 1,
+    });
+    await chrome.debugger.sendCommand(target, "Input.dispatchMouseEvent", {
+      type: "mouseReleased",
+      x,
+      y,
+      button: "left",
+      clickCount: 1,
+    });
+  } finally {
+    await chrome.debugger.detach(target).catch(() => {});
+  }
+  return true;
+}
 
 async function startFlow({ environment, cardChoice, person }) {
   const env = ENVIRONMENTS[environment] || ENVIRONMENTS.souscrire;

@@ -160,19 +160,44 @@
     return simulateClick(target);
   }
 
+  // L'attribut "checked" sur l'element HOTE (pas le noeud interne du shadow
+  // DOM) est celui qui reflete le vrai etat Vue (confirme par inspection :
+  // <ds-selector-insurance ... checked="checked"> sur l'option par defaut).
+  // On le verifie en priorite - un aria-checked="true" sur le <label> interne
+  // seul ne garantit pas que le state du formulaire a reellement suivi.
   function isChecked(el) {
     if (!el) return false;
+    if (el.hasAttribute("checked")) return true;
+    if (el.getAttribute("aria-checked") === "true") return true;
+    if (el.shadowRoot?.querySelector('input[type="radio"]:checked, input[type="checkbox"]:checked')) return true;
     const target = findShadowInteractive(el);
     if (target) {
       if (target.getAttribute("aria-checked") === "true") return true;
       if (target.getAttribute("aria-selected") === "true") return true;
       if ("checked" in target && target.checked) return true;
     }
-    return (
-      el.hasAttribute("checked") ||
-      el.getAttribute("aria-checked") === "true" ||
-      el.shadowRoot?.querySelector('input[type="radio"]:checked, input[type="checkbox"]:checked') != null
-    );
+    return false;
+  }
+
+  // Clic "reel" via le protocole DevTools (background.js + chrome.debugger) :
+  // indiscernable d'un clic humain (event.isTrusted inclus), ce qu'aucun
+  // evenement synthetique ne peut jamais reproduire. Necessaire pour les
+  // assurances, qui semblent exiger une vraie interaction utilisateur.
+  async function trustedClickCustom(el) {
+    if (!el) return false;
+    const target = findShadowInteractive(el) || el;
+    target.scrollIntoView?.({ block: "center", inline: "center" });
+    await sleep(150);
+    const rect = target.getBoundingClientRect();
+    const x = Math.round(rect.left + rect.width / 2);
+    const y = Math.round(rect.top + rect.height / 2);
+    try {
+      const response = await chrome.runtime.sendMessage({ type: "TRUSTED_CLICK", x, y });
+      if (response?.ok) return true;
+    } catch (e) {
+      /* ignore, on retombe sur le clic simule */
+    }
+    return simulateClick(target);
   }
 
   // Clique et verifie que ca a bien "pris" (attribut checked/aria-checked).
@@ -185,6 +210,18 @@
     await sleep(waitMs);
     if (isChecked(el)) return true;
     clickCustom(el);
+    await sleep(waitMs);
+    return isChecked(el);
+  }
+
+  // Meme chose mais avec un clic "reel" (trustedClickCustom) : utilise pour
+  // les assurances, ou le clic simule ne suffisait pas.
+  async function trustedClickAndVerify(el, waitMs = 400) {
+    if (!el) return false;
+    await trustedClickCustom(el);
+    await sleep(waitMs);
+    if (isChecked(el)) return true;
+    await trustedClickCustom(el);
     await sleep(waitMs);
     return isChecked(el);
   }
@@ -368,9 +405,15 @@
       "background:#111", "color:#0f0", "font:12px/1.4 monospace",
       "padding:10px", "border-radius:8px", "box-shadow:0 4px 20px rgba(0,0,0,.4)",
     ].join(";");
-    panel.innerHTML = '<strong style="color:#fff">FLOA Auto-remplissage</strong><div id="floa-autofill-body"></div>';
+    panel.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+      '<strong style="color:#fff">FLOA Auto-remplissage</strong>' +
+      '<button id="floa-autofill-close" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;line-height:1;padding:0 4px">&times;</button>' +
+      "</div>" +
+      '<div id="floa-autofill-body"></div>';
     document.documentElement.appendChild(panel);
     panelBody = panel.querySelector("#floa-autofill-body");
+    panel.querySelector("#floa-autofill-close").addEventListener("click", () => panel.remove());
   }
 
   function log(msg, level = "info") {
@@ -513,7 +556,7 @@
     const adeTestId = INSURANCE_ADE_TESTID[CONFIG.insuranceADE];
     const adeEl = stepDiv.querySelector(`[data-testid="${adeTestId}"]`);
     if (adeEl) {
-      const confirmed = await clickAndVerify(adeEl);
+      const confirmed = await trustedClickAndVerify(adeEl);
       log(
         `Assurance emprunteur: ${CONFIG.insuranceADE}${confirmed ? "" : " -> PAS CONFIRME COCHE, verifie manuellement"}`,
         confirmed ? "info" : "warn"
@@ -526,7 +569,7 @@
     const pfpTestId = INSURANCE_PFP_TESTID[CONFIG.insurancePFP];
     const pfpEl = stepDiv.querySelector(`[data-testid="${pfpTestId}"]`);
     if (pfpEl) {
-      const confirmed = await clickAndVerify(pfpEl);
+      const confirmed = await trustedClickAndVerify(pfpEl);
       log(
         `Pack Family Protect: ${CONFIG.insurancePFP}${confirmed ? "" : " -> PAS CONFIRME COCHE, verifie manuellement"}`,
         confirmed ? "info" : "warn"

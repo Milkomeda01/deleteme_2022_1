@@ -83,12 +83,24 @@ Options, sont **volontairement laisses tels quels** (jamais remplis) - ils
 ne bloquent pas le bouton "Suivant" (le select OUI/NON est deja sur "OUI"
 par defaut).
 
-Si le bouton "Suivant" apparait grise malgre des assurances visuellement
-cochees (`aria-checked="true"`), c'etait du au double-declenchement d'une
-activation clic + espace sur le meme clic simule, qui pouvait laisser
-l'etat interne du formulaire incoherent malgre un rendu visuel correct -
-corrige (`simulateClick` n'envoie plus qu'une seule activation, comme un
-clic humain).
+**Assurances et bouton "Suivant" grise** : meme apres avoir corrige le
+double-declenchement clic+espace, le bouton restait grise tant qu'un VRAI
+clic humain n'etait pas fait sur les cartes d'assurance (confirme sur le
+terrain : re-cliquer a la main dessuffisait). Cause tres probable : le site
+exige un clic avec `event.isTrusted === true` pour ce choix reglemente
+(consentement assurance) - une garantie du navigateur qu'aucun evenement
+synthetique (`dispatchEvent`/`.click()`) ne peut jamais satisfaire, quel que
+soit le code.
+
+Contournement : `background.js` utilise maintenant l'API `chrome.debugger`
+(protocole DevTools) pour injecter un vrai clic au niveau navigateur sur les
+2 cartes d'assurance (`trustedClick` + `content/step2-formulaire.js`
+`trustedClickCustom`/`trustedClickAndVerify`), indiscernable d'un clic
+humain. Necessite la permission `debugger` dans le manifest ; Chrome affiche
+brievement un bandeau "cette extension a demarre le debogage" pendant
+l'operation, c'est normal.
+
+Le panneau de logs a maintenant une croix pour le fermer une fois termine.
 
 Pour rappel, en cliquant sur ce "Suivant" toi-meme depuis Options, le
 parcours passe par une pop-in de proposition de carte Gold avant
