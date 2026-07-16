@@ -7,8 +7,10 @@
   "host_permissions": [
     "https://preform-front-prp.floa.com/*",
     "https://preform-front-val.floa.com/*",
+    "https://preform-front.floa.com/*",
     "https://preprod-souscrire.floabank.fr/*",
-    "https://validation-souscrire.floabank.fr/*"
+    "https://validation-souscrire.floabank.fr/*",
+    "https://souscrire.floabank.fr/*"
   ],
   "background": {
     "service_worker": "background.js"

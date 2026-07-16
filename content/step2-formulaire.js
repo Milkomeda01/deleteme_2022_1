@@ -232,8 +232,9 @@
     }
 
     const selector =
-      '[role="option"], li, ds-select-option, ds-option, option, [class*="option"]';
+      'ds-select-search-option, ds-select-option, ds-option, [role="option"], li, option, [class*="option"]';
     const pools = [
+      el.querySelectorAll(selector),
       document.querySelectorAll(selector),
       el.shadowRoot ? el.shadowRoot.querySelectorAll(selector) : [],
     ];
@@ -255,26 +256,36 @@
   // proposee par le site, sans se soucier de son texte. Utilise pour la
   // ville de naissance : le site propose une liste par defaut des qu'on
   // ouvre le champ (pas besoin/pas fiable de taper un texte de recherche).
+  //
+  // Les suggestions sont des <ds-select-search-option> en DOM clair
+  // (enfants directs du champ, projetes via <slot> dans son shadow DOM) -
+  // on les cible en priorite avant tout selecteur generique.
   async function pickFirstSuggestion(el) {
     el.click();
     await sleep(600);
 
-    const selector =
-      '[role="option"], [role="row"], [role="gridcell"], li, ds-select-option, ds-option, [class*="option"], [class*="suggestion"], [class*="result"]';
+    const specificSelector = "ds-select-search-option, ds-select-option, ds-option";
+    const genericSelector =
+      '[role="option"], [role="row"], [role="gridcell"], li, [class*="option"], [class*="suggestion"], [class*="result"]';
+
     const pools = [
-      ...document.querySelectorAll(selector),
-      ...(el.shadowRoot ? el.shadowRoot.querySelectorAll(selector) : []),
+      el.querySelectorAll(specificSelector),
+      el.querySelectorAll(genericSelector),
+      document.querySelectorAll(specificSelector),
+      el.shadowRoot ? el.shadowRoot.querySelectorAll(specificSelector + ", " + genericSelector) : [],
+      document.querySelectorAll(genericSelector),
     ];
 
-    const candidates = pools
-      .filter((o) => isVisible(o) && (o.textContent || "").trim().length > 0)
-      .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
-
-    if (candidates[0]) {
-      const label = candidates[0].textContent.trim();
-      candidates[0].click();
-      await sleep(250);
-      return label;
+    for (const pool of pools) {
+      const candidates = Array.from(pool)
+        .filter((o) => isVisible(o) && (o.textContent || "").trim().length > 0)
+        .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+      if (candidates[0]) {
+        const label = candidates[0].textContent.trim();
+        candidates[0].click();
+        await sleep(250);
+        return label;
+      }
     }
     return null;
   }

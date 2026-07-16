@@ -3,6 +3,13 @@ function getSelected(name) {
   return el ? el.value : null;
 }
 
+const prodNotice = document.getElementById("prod-notice");
+function updateProdNotice() {
+  prodNotice.style.display = getSelected("env") === "prod-souscrire" ? "block" : "none";
+}
+document.querySelectorAll('input[name="env"]').forEach((el) => el.addEventListener("change", updateProdNotice));
+updateProdNotice();
+
 document.getElementById("launch").addEventListener("click", () => {
   const environment = getSelected("env");
   const cardChoice = getSelected("card");

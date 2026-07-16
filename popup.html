@@ -64,6 +64,20 @@
         border: none;
         width: 100%;
       }
+      .prod-warning {
+        color: #b3261e;
+        font-weight: 600;
+      }
+      #prod-notice {
+        display: none;
+        font-size: 11px;
+        color: #b3261e;
+        background: #fde8e6;
+        border: 1px solid #f2b8b5;
+        border-radius: 6px;
+        padding: 6px 8px;
+        margin: -4px 0 10px;
+      }
     </style>
   </head>
   <body>
@@ -71,9 +85,11 @@
 
     <fieldset>
       <legend>1. Environnement</legend>
-      <label><input type="radio" name="env" value="souscrire" checked /> souscrire</label>
+      <label><input type="radio" name="env" value="souscrire" checked /> souscrire (preprod)</label>
       <label><input type="radio" name="env" value="validation-souscrire" /> validation-souscrire</label>
+      <label><input type="radio" name="env" value="prod-souscrire" /> <span class="prod-warning">souscrire (PRODUCTION)</span></label>
     </fieldset>
+    <div id="prod-notice">⚠️ Environnement de PRODUCTION reelle. L'extension s'arrete toujours avant la Signature, mais verifie bien chaque champ.</div>
 
     <fieldset>
       <legend>2. Produit</legend>

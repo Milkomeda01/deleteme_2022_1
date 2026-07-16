@@ -3,9 +3,9 @@
 Extension Chrome (Manifest V3) pour PC. Au clic sur l'icone epinglee, un
 popup demande 3 choses, dans l'ordre :
 
-1. **Environnement** : `souscrire` (preprod) ou `validation-souscrire`.
-   (Un environnement production est prevu mais pas encore active : il manque
-   les URLs exactes, volontairement non devinees pour un site bancaire.)
+1. **Environnement** : `souscrire` (preprod), `validation-souscrire`, ou
+   `souscrire (PRODUCTION)` - un bandeau rouge d'avertissement s'affiche
+   dans le popup quand la production est selectionnee.
 2. **Produit** : Carte Cdiscount ou Carte Cdiscount CLA.
 3. **Identite** (select "identite" du pre-formulaire) : "Moi" (le
    prenom/nom configures dans les Reglages de l'extension) ou "Aleatoire"
@@ -16,18 +16,19 @@ Une fois "Lancer" clique :
 1. Ouvre le pre-formulaire du bon environnement :
    - `souscrire` -> `https://preform-front-prp.floa.com/souscrire`
    - `validation-souscrire` -> `https://preform-front-val.floa.com/souscrire`
-     (domaine different, pas juste un chemin different)
+   - `prod-souscrire` -> `https://preform-front.floa.com/souscrire`
+   (domaines differents, pas juste un chemin qui change)
 2. Sur l'environnement validation, un select "environnement" existe AVANT le
    select carte : il est mis sur "validation" automatiquement. Puis la carte
    choisie est selectionnee dans le select suivant, et selon le choix
    d'identite, "Moi" ou rien dans le select d'apres, puis clic sur le bouton
    de soumission ("Poster les donnees").
 3. Suit les redirections jusqu'au domaine du formulaire correspondant
-   (`preprod-souscrire.floabank.fr` ou `validation-souscrire.floabank.fr`,
-   quel que soit le chemin exact - `/carte-cdiscount/formulaire` ou
-   `/cla-cdiscount/formulaire`) et remplit automatiquement chaque etape :
-   Identite (deja pre-remplie), Naissance, Foyer, Logement, Profession,
-   Revenus, Charges, Options.
+   (`preprod-souscrire.floabank.fr`, `validation-souscrire.floabank.fr` ou
+   `souscrire.floabank.fr`, quel que soit le chemin exact -
+   `/carte-cdiscount/formulaire` ou `/cla-cdiscount/formulaire`) et remplit
+   automatiquement chaque etape : Identite (deja pre-remplie), Naissance,
+   Foyer, Logement, Profession, Revenus, Charges, Options.
 
 **L'extension s'arrete volontairement apres avoir rempli l'etape Options.**
 Elle ne clique jamais sur le bouton qui menerait a l'etape de Signature, afin
@@ -79,10 +80,10 @@ meritent une verification manuelle systematique :
 - **Departement de naissance** : corrige (confirme par un retour terrain) -
   `setDropdown` trouve maintenant le vrai `<select>` natif cache dans le
   shadow DOM du composant.
-- **Ville de naissance** : le site propose une liste de suggestions des
-  qu'on ouvre le champ (sans avoir besoin de taper du texte). L'extension ne
-  tape donc plus rien et clique simplement la 1ere suggestion visible
-  (`pickFirstSuggestion`). A verifier que la ville retenue convient.
+- **Ville de naissance** : corrige - les suggestions sont des
+  `<ds-select-search-option>` en DOM clair (enfants directs du champ),
+  `pickFirstSuggestion` les cible desormais en priorite et clique la
+  1ere de la liste, sans taper de texte.
 - **Assurances (Options)** : les clics sur les cartes d'assurance
   (emprunteur / Pack Family Protect) utilisent maintenant une vraie
   sequence d'evenements souris (pointerdown/mousedown/mouseup/click) et

@@ -14,6 +14,7 @@
 // domaine de formulaire final (pas juste un chemin qui change) :
 // - souscrire            : preform-front-prp.floa.com -> preprod-souscrire.floabank.fr
 // - validation-souscrire : preform-front-val.floa.com -> validation-souscrire.floabank.fr
+// - prod-souscrire       : preform-front.floa.com -> souscrire.floabank.fr (PRODUCTION REELLE)
 // Sur l'environnement "validation", il y a en plus un select "environnement"
 // AVANT le select carte (donc en position 0), qu'il faut positionner sur
 // "validation" - voir content/step1-preform.js.
@@ -29,6 +30,12 @@ const ENVIRONMENTS = {
     preformPath: "/souscrire",
     formulaireHost: "validation-souscrire.floabank.fr",
     needsEnvSelect: true,
+  },
+  "prod-souscrire": {
+    preformHost: "preform-front.floa.com",
+    preformPath: "/souscrire",
+    formulaireHost: "souscrire.floabank.fr",
+    needsEnvSelect: false,
   },
 };
 
