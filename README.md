@@ -93,13 +93,20 @@ meritent une verification manuelle systematique :
   (`findShadowInteractive`) partout ou c'est pertinent, avec verification
   et un 2e essai automatique. Le log indique clairement "PAS CONFIRME COCHE" si ca
   echoue malgre tout.
-- **Ville/Assurances toujours en echec malgre le ciblage shadow DOM** : le
-  panneau flottant journalise maintenant, pour chaque clic, l'element
-  precis cible (`describeEl`) et si `aria-checked`/`aria-selected` est bien
-  passe a `true` juste apres. En cas de nouvel echec, une capture de ce
-  panneau (pas juste le formulaire) permettra de voir exactement quel
-  element a ete clique et pourquoi ca n'a pas "pris", plutot que de
-  redeviner a l'aveugle.
+- **Ville de naissance (2e cause trouvee grace aux logs)** : le simple clic
+  sur l'element hote n'ouvrait pas la liste de suggestions - il fallait
+  donner le FOCUS au vrai `<input>` interne (comme le faisait l'ancienne
+  version). `pickFirstSuggestion` fait maintenant `focus()` +
+  evenements focus/focusin sur l'input avant de chercher les suggestions.
+- **Assurances (2e cause trouvee grace aux logs)** : les cartes
+  d'assurance n'etaient pas encore dans le DOM au moment ou le script les
+  cherchait ("element introuvable"), probablement charge apres coup
+  (recommandation calculee a part). `fillOptions` attend maintenant
+  qu'au moins une carte (`[data-insurance-type="ADE"]`) existe avant de
+  chercher les `data-testid` precis (jusqu'a 5s).
+- Le panneau flottant journalise pour chaque clic l'element precis cible
+  (`describeEl`) et si `aria-checked`/`aria-selected` est bien passe a
+  `true` juste apres, utile pour diagnostiquer tout nouveau cas.
 
 Le champ "Code secret" et le select "OUI/NON" juste apres, dans l'etape
 Options, sont volontairement laisses tels quels (voir commentaires dans

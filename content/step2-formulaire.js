@@ -311,8 +311,18 @@
   // donnees projetee via <slot> et ne reagissent pas au clic elles-memes).
   // On cible donc le shadow DOM en priorite.
   async function pickFirstSuggestion(el) {
-    el.click();
-    await sleep(600);
+    // Le simple clic sur l'element hote ne suffit pas a declencher
+    // l'affichage des suggestions par defaut : il faut donner le focus au
+    // vrai <input> interne (comme le faisait l'ancienne version qui
+    // fonctionnait, avant d'etre simplifiee par erreur).
+    const input = el.shadowRoot?.querySelector("input") || el.querySelector("input");
+    const focusTarget = input || el;
+    log(`  -> focus/clic sur ${describeEl(focusTarget)} pour ouvrir les suggestions`);
+    focusTarget.focus?.();
+    focusTarget.dispatchEvent(new FocusEvent("focus", { bubbles: true, composed: true }));
+    focusTarget.dispatchEvent(new FocusEvent("focusin", { bubbles: true, composed: true }));
+    simulateClick(focusTarget);
+    await sleep(900);
 
     const specificSelector = "ds-select-search-option, ds-select-option, ds-option";
     const genericSelector =
@@ -519,6 +529,15 @@
   }
 
   async function fillOptions(stepDiv) {
+    // Les cartes d'assurance semblent se charger un peu apres l'affichage
+    // de l'etape (probablement une recommandation calculee/chargee a part) :
+    // on attend qu'au moins une carte existe avant de chercher les data-testid.
+    const insuranceReady = await waitFor(
+      () => stepDiv.querySelector('[data-insurance-type="ADE"]'),
+      5000
+    );
+    log(`Cartes d'assurance detectees dans le DOM: ${Boolean(insuranceReady)}`);
+
     const adeTestId = INSURANCE_ADE_TESTID[CONFIG.insuranceADE];
     const adeEl = stepDiv.querySelector(`[data-testid="${adeTestId}"]`);
     if (adeEl) {
