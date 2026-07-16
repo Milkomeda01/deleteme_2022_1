@@ -80,15 +80,18 @@ meritent une verification manuelle systematique :
 - **Departement de naissance** : corrige (confirme par un retour terrain) -
   `setDropdown` trouve maintenant le vrai `<select>` natif cache dans le
   shadow DOM du composant.
-- **Ville de naissance** : corrige - les suggestions sont des
-  `<ds-select-search-option>` en DOM clair (enfants directs du champ),
-  `pickFirstSuggestion` les cible desormais en priorite et clique la
-  1ere de la liste, sans taper de texte.
-- **Assurances (Options)** : les clics sur les cartes d'assurance
-  (emprunteur / Pack Family Protect) utilisent maintenant une vraie
-  sequence d'evenements souris (pointerdown/mousedown/mouseup/click) et
-  verifient que l'attribut `checked` est bien applique, avec un 2e essai
-  automatique sinon. Le log indique clairement "PAS CONFIRME COCHE" si ca
+- **Ville de naissance** : corrige (inspection du shadow DOM) - la ligne
+  reellement cliquable est un `<li role="row">` RENDU DANS LE SHADOW DOM
+  du champ, pas les `<ds-select-search-option>` en DOM clair (qui ne sont
+  que la source de donnees projetee via `<slot>` et ne reagissent pas au
+  clic elles-memes). `pickFirstSuggestion` cible maintenant ce shadow DOM
+  en priorite.
+- **Assurances (Options)** : corrige (inspection du shadow DOM) - meme
+  souci que la ville : l'element avec `aria-checked` est un `<label>`
+  interne au shadow DOM de `ds-selector-insurance`, pas l'element hote.
+  `clickCustom`/`isChecked` ciblent desormais ce noeud interne
+  (`findShadowInteractive`) partout ou c'est pertinent, avec verification
+  et un 2e essai automatique. Le log indique clairement "PAS CONFIRME COCHE" si ca
   echoue malgre tout.
 
 Le champ "Code secret" et le select "OUI/NON" juste apres, dans l'etape

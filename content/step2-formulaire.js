@@ -122,24 +122,45 @@
     field.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
   }
 
+  // Sur ce design system, l'element vraiment interactif (celui qui porte
+  // aria-checked/aria-selected et qui reagit au clic) est SOUVENT a
+  // l'interieur du shadow DOM de l'element hote (ex: un <label
+  // aria-checked> pour ds-selector-insurance, un <li role="row"
+  // aria-selected> pour une ligne de suggestion) - cliquer l'hote lui-meme
+  // ne suffit pas. On cherche donc en priorite ce noeud interne.
+  function findShadowInteractive(el) {
+    if (!el || !el.shadowRoot) return null;
+    return el.shadowRoot.querySelector(
+      'label[aria-checked], label[tabindex], [role="radio"], [role="checkbox"], li[role="row"], li[role="option"], [role="option"], input, button'
+    );
+  }
+
   // Champs custom (ds-selector, ds-selector-insurance, ds-switch...) : un
   // clic simule est l'interaction "utilisateur reelle" la plus fiable.
   // Simule une vraie interaction souris (pas juste .click()) : certains
   // composants maison n'ecoutent que pointerdown/mousedown/mouseup plutot
-  // que l'evenement synthetique "click", donc on envoie toute la sequence.
+  // que l'evenement synthetique "click", donc on envoie toute la sequence,
+  // sur le noeud interne du shadow DOM quand il existe.
   function clickCustom(el) {
     if (!el) return false;
+    const target = findShadowInteractive(el) || el;
     const opts = { bubbles: true, cancelable: true, composed: true };
-    el.dispatchEvent(new PointerEvent("pointerdown", opts));
-    el.dispatchEvent(new MouseEvent("mousedown", opts));
-    el.dispatchEvent(new PointerEvent("pointerup", opts));
-    el.dispatchEvent(new MouseEvent("mouseup", opts));
-    el.click();
+    target.dispatchEvent(new PointerEvent("pointerdown", opts));
+    target.dispatchEvent(new MouseEvent("mousedown", opts));
+    target.dispatchEvent(new PointerEvent("pointerup", opts));
+    target.dispatchEvent(new MouseEvent("mouseup", opts));
+    target.click();
     return true;
   }
 
   function isChecked(el) {
     if (!el) return false;
+    const target = findShadowInteractive(el);
+    if (target) {
+      if (target.getAttribute("aria-checked") === "true") return true;
+      if (target.getAttribute("aria-selected") === "true") return true;
+      if ("checked" in target && target.checked) return true;
+    }
     return (
       el.hasAttribute("checked") ||
       el.getAttribute("aria-checked") === "true" ||
@@ -234,6 +255,7 @@
     const selector =
       'ds-select-search-option, ds-select-option, ds-option, [role="option"], li, option, [class*="option"]';
     const pools = [
+      el.shadowRoot ? el.shadowRoot.querySelectorAll('li[role="row"], li[role="option"], [role="option"], li') : [],
       el.querySelectorAll(selector),
       document.querySelectorAll(selector),
       el.shadowRoot ? el.shadowRoot.querySelectorAll(selector) : [],
@@ -257,9 +279,11 @@
   // ville de naissance : le site propose une liste par defaut des qu'on
   // ouvre le champ (pas besoin/pas fiable de taper un texte de recherche).
   //
-  // Les suggestions sont des <ds-select-search-option> en DOM clair
-  // (enfants directs du champ, projetes via <slot> dans son shadow DOM) -
-  // on les cible en priorite avant tout selecteur generique.
+  // Confirme par inspection : la ligne REELLEMENT cliquable est un
+  // <li role="row"> rendu DANS le shadow DOM du champ (pas les
+  // <ds-select-search-option> en DOM clair, qui ne sont que la source de
+  // donnees projetee via <slot> et ne reagissent pas au clic elles-memes).
+  // On cible donc le shadow DOM en priorite.
   async function pickFirstSuggestion(el) {
     el.click();
     await sleep(600);
@@ -269,6 +293,7 @@
       '[role="option"], [role="row"], [role="gridcell"], li, [class*="option"], [class*="suggestion"], [class*="result"]';
 
     const pools = [
+      el.shadowRoot ? el.shadowRoot.querySelectorAll('li[role="row"], li[role="option"], [role="option"], li') : [],
       el.querySelectorAll(specificSelector),
       el.querySelectorAll(genericSelector),
       document.querySelectorAll(specificSelector),
