@@ -130,7 +130,8 @@
   }
 
   // ds-select / ds-select-search : essaie valeur directe + evenements, PUIS
-  // (en secours) ouvre le composant et clique l'option visible correspondante.
+  // (en secours) ouvre le composant et clique l'option visible correspondante,
+  // PUIS (dernier recours) simule une navigation clavier jusqu'a l'option.
   async function setDropdown(el, value, textRegex) {
     if (!el) return false;
 
@@ -152,19 +153,28 @@
     await sleep(250);
 
     // Strategie C : ouverture + clic sur l'option affichee (texte)
+    let ok = false;
     if (textRegex) {
-      await openAndClickOption(el, textRegex);
+      ok = await openAndClickOption(el, textRegex);
     }
-    return true;
+
+    // Strategie D (dernier recours) : navigation clavier jusqu'a la position
+    // de l'option correspondante dans la liste des <option> du DOM clair.
+    if (!ok) {
+      ok = await keyboardSelectByValue(el, value);
+    }
+    return ok;
   }
 
   async function openAndClickOption(el, textRegex) {
     el.click();
     await sleep(350);
 
+    const selector =
+      '[role="option"], li, ds-select-option, ds-option, option, [class*="option"]';
     const pools = [
-      document.querySelectorAll('[role="option"], li, ds-select-option, option'),
-      el.shadowRoot ? el.shadowRoot.querySelectorAll('[role="option"], li, option') : [],
+      document.querySelectorAll(selector),
+      el.shadowRoot ? el.shadowRoot.querySelectorAll(selector) : [],
     ];
 
     for (const pool of pools) {
@@ -178,6 +188,31 @@
       }
     }
     return false;
+  }
+
+  // Ouvre le composant puis navigue au clavier (Fleche bas x N + Entree)
+  // jusqu'a l'option dont la <option value="..."> du DOM clair correspond.
+  // Fonctionne meme si la liste visible est entierement dans un shadow DOM
+  // ferme, tant que le composant gere le clavier sur son element hote.
+  async function keyboardSelectByValue(el, value) {
+    const options = Array.from(el.querySelectorAll("option"));
+    const index = options.findIndex((o) => o.value === value);
+    if (index === -1) return false;
+
+    el.focus?.();
+    el.click();
+    await sleep(300);
+    for (let i = 0; i <= index; i++) {
+      el.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, composed: true })
+      );
+      await sleep(60);
+    }
+    el.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true, composed: true })
+    );
+    await sleep(250);
+    return true;
   }
 
   // Champ texte/recherche encapsule dans un shadow DOM (ds-input-text,

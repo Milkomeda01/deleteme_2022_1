@@ -14,5 +14,6 @@
   "action": {
     "default_title": "Lancer la souscription Cdiscount FLOA",
     "default_popup": "popup.html"
-  }
+  },
+  "options_page": "options.html"
 }

@@ -1,7 +1,17 @@
-function start(cardChoice) {
-  chrome.runtime.sendMessage({ type: "START_FLOW", cardChoice });
-  window.close();
+function getSelected(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : null;
 }
 
-document.getElementById("btn-cdiscount").addEventListener("click", () => start("cdiscount"));
-document.getElementById("btn-cdiscount-cla").addEventListener("click", () => start("cdiscount_cla"));
+document.getElementById("launch").addEventListener("click", () => {
+  const environment = getSelected("env");
+  const cardChoice = getSelected("card");
+  const person = getSelected("person");
+  chrome.runtime.sendMessage({ type: "START_FLOW", environment, cardChoice, person });
+  window.close();
+});
+
+document.getElementById("settings-link").addEventListener("click", () => {
+  chrome.runtime.openOptionsPage();
+  window.close();
+});

@@ -6,39 +6,90 @@
     <style>
       body {
         font-family: -apple-system, Segoe UI, sans-serif;
-        width: 260px;
+        width: 280px;
         padding: 12px;
         margin: 0;
+        color: #222;
       }
       h1 {
         font-size: 13px;
         font-weight: 600;
         margin: 0 0 10px;
-        color: #222;
       }
-      button {
+      fieldset {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 0 0 10px;
+        padding: 8px 10px 10px;
+      }
+      legend {
+        font-size: 11px;
+        font-weight: 600;
+        color: #555;
+        padding: 0 4px;
+      }
+      label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        padding: 4px 0;
+        cursor: pointer;
+      }
+      button#launch {
         display: block;
         width: 100%;
         padding: 10px;
-        margin-bottom: 8px;
+        margin-top: 4px;
         font-size: 13px;
+        font-weight: 600;
         cursor: pointer;
-        border: 1px solid #ccc;
+        border: none;
         border-radius: 6px;
-        background: #f7f7f7;
+        background: #1035bb;
+        color: white;
       }
-      button:last-of-type {
-        margin-bottom: 0;
+      button#launch:hover {
+        background: #0c2a94;
       }
-      button:hover {
-        background: #eee;
+      #settings-link {
+        display: block;
+        text-align: center;
+        margin-top: 10px;
+        font-size: 12px;
+        color: #1035bb;
+        cursor: pointer;
+        text-decoration: underline;
+        background: none;
+        border: none;
+        width: 100%;
       }
     </style>
   </head>
   <body>
-    <h1>Quelle carte souscrire ?</h1>
-    <button id="btn-cdiscount">Carte Cdiscount</button>
-    <button id="btn-cdiscount-cla">Carte Cdiscount CLA</button>
+    <h1>Lancer la souscription</h1>
+
+    <fieldset>
+      <legend>1. Environnement</legend>
+      <label><input type="radio" name="env" value="souscrire" checked /> souscrire</label>
+      <label><input type="radio" name="env" value="validation-souscrire" /> validation-souscrire</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>2. Produit</legend>
+      <label><input type="radio" name="card" value="cdiscount" checked /> Carte Cdiscount</label>
+      <label><input type="radio" name="card" value="cdiscount_cla" /> Carte Cdiscount CLA</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>3. Identite (select 3)</legend>
+      <label><input type="radio" name="person" value="me" checked /> Moi</label>
+      <label><input type="radio" name="person" value="random" /> Aleatoire (ne rien selectionner)</label>
+    </fieldset>
+
+    <button id="launch">Lancer</button>
+    <button id="settings-link">⚙️ Reglages (mon prenom/nom)</button>
+
     <script src="popup.js"></script>
   </body>
 </html>

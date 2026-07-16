@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Reglages - FLOA Cdiscount</title>
+    <style>
+      body {
+        font-family: -apple-system, Segoe UI, sans-serif;
+        max-width: 420px;
+        margin: 24px auto;
+        color: #222;
+      }
+      h1 {
+        font-size: 18px;
+        margin-bottom: 4px;
+      }
+      p.hint {
+        color: #666;
+        font-size: 13px;
+        margin-top: 0;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin: 14px 0 4px;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      button {
+        margin-top: 18px;
+        padding: 10px 16px;
+        font-size: 14px;
+        border: none;
+        border-radius: 6px;
+        background: #1035bb;
+        color: white;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0c2a94;
+      }
+      #status {
+        margin-top: 10px;
+        font-size: 13px;
+        color: #1a7d1a;
+        min-height: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Reglages - FLOA Cdiscount</h1>
+    <p class="hint">
+      Cette identite est utilisee quand tu choisis "Moi" dans le popup (elle
+      correspond a un des choix du 3e select du pre-formulaire). Si tu
+      partages cette extension, chaque personne renseigne son propre
+      prenom/nom ici.
+    </p>
+
+    <label for="firstname">Prenom</label>
+    <input type="text" id="firstname" autocomplete="off" />
+
+    <label for="lastname">Nom</label>
+    <input type="text" id="lastname" autocomplete="off" />
+
+    <button id="save">Enregistrer</button>
+    <div id="status"></div>
+
+    <script src="options.js"></script>
+  </body>
+</html>

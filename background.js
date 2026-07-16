@@ -1,17 +1,24 @@
 // Orchestre les deux etapes :
-// 1) preform-front-prp.floa.com/souscrire -> selection carte + nom, soumission
-// 2) preprod-souscrire.floabank.fr/carte-cdiscount/formulaire -> remplissage du parcours
+// 1) preform-front-prp.floa.com -> selection environnement/carte/identite, soumission
+// 2) preprod-souscrire.floabank.fr -> remplissage du parcours
 //
 // Le parcours FLOA est une "one page" : une fois qu'on est dessus, l'URL ne
 // change plus. On n'injecte donc le script d'etape 2 qu'une seule fois par
-// onglet, au premier chargement complet de cette page.
+// onglet confirme (voir plus bas).
 //
-// Le choix de la carte (Cdiscount classique ou Cdiscount CLA) se fait dans le
-// popup (popup.html/popup.js), qui envoie un message START_FLOW ici. Le choix
-// est stocke dans chrome.storage.local pour que content/step1-preform.js
-// puisse le relire une fois injecte sur la page du pre-formulaire.
+// Les 3 choix du popup (environnement / carte / identite) sont envoyes ici
+// via un message START_FLOW, stockes dans chrome.storage.local, et relus par
+// content/step1-preform.js une fois injecte sur la page du pre-formulaire.
 
-const PREFORM_URL = "https://preform-front-prp.floa.com/souscrire";
+const PREFORM_HOST = "preform-front-prp.floa.com";
+// Chemin du pre-formulaire selon l'environnement choisi dans le popup. Le
+// chemin "validation-souscrire" est une supposition basee sur le nom donne -
+// A CONFIRMER / adapter si besoin.
+const ENVIRONMENT_PATHS = {
+  souscrire: "/souscrire",
+  "validation-souscrire": "/validation-souscrire",
+};
+
 const FORMULAIRE_HOST = "preprod-souscrire.floabank.fr";
 // Le chemin exact differe entre la carte Cdiscount classique et la variante
 // CLA (mais le parcours/DOM est identique), donc on ne filtre plus que sur
@@ -29,16 +36,23 @@ const confirmedFormulaireTabs = new Set();
 
 chrome.runtime.onMessage.addListener((message, sender) => {
   if (message?.type === "START_FLOW") {
-    startFlow(message.cardChoice);
+    startFlow(message);
   }
   if (message?.type === "FORMULAIRE_DETECTED" && sender.tab) {
     confirmedFormulaireTabs.add(sender.tab.id);
   }
 });
 
-async function startFlow(cardChoice) {
-  await chrome.storage.local.set({ floaCardChoice: cardChoice });
-  const tab = await chrome.tabs.create({ url: PREFORM_URL });
+async function startFlow({ environment, cardChoice, person }) {
+  await chrome.storage.local.set({
+    floaCardChoice: cardChoice || "cdiscount",
+    floaPerson: person || "me",
+  });
+
+  const path = ENVIRONMENT_PATHS[environment] || ENVIRONMENT_PATHS.souscrire;
+  const url = `https://${PREFORM_HOST}${path}`;
+
+  const tab = await chrome.tabs.create({ url });
   activeTabId = tab.id;
   confirmedFormulaireTabs.delete(tab.id);
 }
@@ -54,7 +68,7 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
     return;
   }
 
-  if (details.url.startsWith(PREFORM_URL)) {
+  if (url.hostname === PREFORM_HOST) {
     await chrome.scripting.executeScript({
       target: { tabId: details.tabId },
       files: ["content/step1-preform.js"],
