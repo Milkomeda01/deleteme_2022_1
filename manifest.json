@@ -3,7 +3,7 @@
   "name": "FLOA Cdiscount - Auto Souscription",
   "version": "1.0.0",
   "description": "Clic sur l'icone : lance le pre-formulaire Cdiscount (carte + nom), puis remplit automatiquement le parcours de souscription FLOA jusqu'a l'etape Options. Ne va jamais jusqu'a la Signature.",
-  "permissions": ["tabs", "webNavigation", "scripting"],
+  "permissions": ["tabs", "webNavigation", "scripting", "storage"],
   "host_permissions": [
     "https://preform-front-prp.floa.com/*",
     "https://preprod-souscrire.floabank.fr/*"
@@ -12,6 +12,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Lancer la souscription Cdiscount FLOA"
+    "default_title": "Lancer la souscription Cdiscount FLOA",
+    "default_popup": "popup.html"
   }
 }

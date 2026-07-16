@@ -5,6 +5,11 @@
 // Le parcours FLOA est une "one page" : une fois qu'on est dessus, l'URL ne
 // change plus. On n'injecte donc le script d'etape 2 qu'une seule fois par
 // onglet, au premier chargement complet de cette page.
+//
+// Le choix de la carte (Cdiscount classique ou Cdiscount CLA) se fait dans le
+// popup (popup.html/popup.js), qui envoie un message START_FLOW ici. Le choix
+// est stocke dans chrome.storage.local pour que content/step1-preform.js
+// puisse le relire une fois injecte sur la page du pre-formulaire.
 
 const PREFORM_URL = "https://preform-front-prp.floa.com/souscrire";
 const FORMULAIRE_HOST = "preprod-souscrire.floabank.fr";
@@ -13,11 +18,18 @@ const FORMULAIRE_PATH = "/carte-cdiscount/formulaire";
 let activeTabId = null;
 const injectedFormulaireTabs = new Set();
 
-chrome.action.onClicked.addListener(async () => {
+chrome.runtime.onMessage.addListener((message) => {
+  if (message?.type === "START_FLOW") {
+    startFlow(message.cardChoice);
+  }
+});
+
+async function startFlow(cardChoice) {
+  await chrome.storage.local.set({ floaCardChoice: cardChoice });
   const tab = await chrome.tabs.create({ url: PREFORM_URL });
   activeTabId = tab.id;
   injectedFormulaireTabs.delete(tab.id);
-});
+}
 
 chrome.webNavigation.onCompleted.addListener(async (details) => {
   if (details.frameId !== 0) return; // uniquement la frame principale

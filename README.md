@@ -1,9 +1,11 @@
 # FLOA Cdiscount - Auto Souscription (extension Chrome)
 
-Extension Chrome (Manifest V3) pour PC. Au clic sur l'icone epinglee :
+Extension Chrome (Manifest V3) pour PC. Au clic sur l'icone epinglee, un
+petit popup demande quelle carte souscrire : **Carte Cdiscount** ou
+**Carte Cdiscount CLA**. Une fois le choix fait :
 
 1. Ouvre `https://preform-front-prp.floa.com/souscrire`.
-2. Selectionne "Carte Cdiscount" dans le 2e `<select>` de la page et
+2. Selectionne la carte choisie dans le 2e `<select>` de la page et
    "Emile Cartier" dans le 3e, puis clique sur le bouton de soumission
    ("Poster les donnees").
 3. Suit les redirections jusqu'a
@@ -25,10 +27,17 @@ de ne jamais soumettre le dossier a la banque.
 
 ## Utilisation
 
-Cliquer sur l'icone de l'extension. Un panneau flottant apparait en haut a
+Cliquer sur l'icone de l'extension, choisir "Carte Cdiscount" ou "Carte
+Cdiscount CLA" dans le popup. Un panneau flottant apparait ensuite en haut a
 droite de la page du formulaire et journalise chaque champ rempli (en vert)
 ou chaque point a verifier manuellement (en orange). La console du
 navigateur (F12) contient le meme journal en detail.
+
+Je n'ai pas pu verifier le libelle exact des options du select "carte" sur
+le pre-formulaire : la selection se fait par correspondance de texte
+("cdiscount" sans "cla" pour la carte classique, "cdiscount" + "cla" pour la
+variante CLA). Le log indique quelle option a ete reellement choisie -
+verifie-la avant que la soumission ne parte.
 
 ## Limites connues / a verifier
 
