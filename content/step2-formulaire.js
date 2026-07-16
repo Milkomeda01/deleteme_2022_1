@@ -384,7 +384,15 @@
   // ------------------------------- main --------------------------------------
 
   async function main() {
-    await waitFor(() => document.querySelector("#cdiscountForm"));
+    const formRoot = await waitFor(() => document.querySelector("#cdiscountForm"));
+    if (!formRoot) {
+      // Mauvaise page (ex: etape intermediaire avant le vrai formulaire) :
+      // on ne previent pas le background, qui reessaiera l'injection a la
+      // prochaine navigation sur ce domaine.
+      return;
+    }
+    chrome.runtime.sendMessage({ type: "FORMULAIRE_DETECTED" });
+
     showPanel();
     log("Formulaire detecte, debut du remplissage automatique.");
 

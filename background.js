@@ -13,14 +13,26 @@
 
 const PREFORM_URL = "https://preform-front-prp.floa.com/souscrire";
 const FORMULAIRE_HOST = "preprod-souscrire.floabank.fr";
-const FORMULAIRE_PATH = "/carte-cdiscount/formulaire";
+// Le chemin exact differe entre la carte Cdiscount classique et la variante
+// CLA (mais le parcours/DOM est identique), donc on ne filtre plus que sur
+// le nom d'hote : des qu'on atterrit sur ce domaine, on injecte le script du
+// parcours, qui attend lui-meme que #cdiscountForm existe avant d'agir (et
+// se contente de logguer une erreur si ce n'est pas la bonne page).
 
 let activeTabId = null;
-const injectedFormulaireTabs = new Set();
+// Un onglet ne passe dans cet ensemble qu'une fois que
+// content/step2-formulaire.js a confirme avoir trouve #cdiscountForm (message
+// FORMULAIRE_DETECTED). Tant qu'aucune confirmation n'est recue, chaque
+// navigation sur le domaine reessaie l'injection (utile si la carte CLA passe
+// par une page intermediaire avant le vrai formulaire).
+const confirmedFormulaireTabs = new Set();
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, sender) => {
   if (message?.type === "START_FLOW") {
     startFlow(message.cardChoice);
+  }
+  if (message?.type === "FORMULAIRE_DETECTED" && sender.tab) {
+    confirmedFormulaireTabs.add(sender.tab.id);
   }
 });
 
@@ -28,7 +40,7 @@ async function startFlow(cardChoice) {
   await chrome.storage.local.set({ floaCardChoice: cardChoice });
   const tab = await chrome.tabs.create({ url: PREFORM_URL });
   activeTabId = tab.id;
-  injectedFormulaireTabs.delete(tab.id);
+  confirmedFormulaireTabs.delete(tab.id);
 }
 
 chrome.webNavigation.onCompleted.addListener(async (details) => {
@@ -50,9 +62,8 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
     return;
   }
 
-  if (url.hostname === FORMULAIRE_HOST && url.pathname.startsWith(FORMULAIRE_PATH)) {
-    if (injectedFormulaireTabs.has(details.tabId)) return;
-    injectedFormulaireTabs.add(details.tabId);
+  if (url.hostname === FORMULAIRE_HOST) {
+    if (confirmedFormulaireTabs.has(details.tabId)) return;
     await chrome.scripting.executeScript({
       target: { tabId: details.tabId },
       files: ["content/step2-formulaire.js"],
@@ -62,5 +73,5 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   if (tabId === activeTabId) activeTabId = null;
-  injectedFormulaireTabs.delete(tabId);
+  confirmedFormulaireTabs.delete(tabId);
 });
