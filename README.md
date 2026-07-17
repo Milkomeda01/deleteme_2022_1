@@ -34,6 +34,12 @@ Une fois "Lancer" clique :
 Elle ne clique jamais sur le bouton qui menerait a l'etape de Signature, afin
 de ne jamais soumettre le dossier a la banque.
 
+Sur les deux pages (pre-formulaire et formulaire), un bandeau cookies est
+automatiquement accepte des qu'il apparait (utile en navigation privee ou
+si les cookies n'ont pas encore ete acceptes sur le domaine) - recherche par
+texte de bouton usuel ("Tout accepter", "J'accepte"...), DOM exact non
+connu/teste en direct.
+
 ## Installation (mode developpeur)
 
 1. Ouvrir `chrome://extensions`.

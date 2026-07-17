@@ -36,6 +36,25 @@
     console.log("[FLOA pre-formulaire]", msg);
   }
 
+  // Bandeau cookies (CMP type TrustCommander) : necessaire en navigation
+  // privee / premiere visite, sinon il peut bloquer les clics sur les
+  // selects/le bouton en dessous. On ne connait pas son DOM exact donc on
+  // cherche par texte de bouton usuel. Idempotent (rien a faire si deja
+  // accepte ou absent), rappele a chaque tick du polling ci-dessous.
+  const COOKIE_ACCEPT_MATCH = /tout accepter|accepter et fermer|^j'accepte|^accepter$|autoriser tout|accepter tous les cookies/i;
+  function tryAcceptCookies() {
+    const candidates = Array.from(
+      document.querySelectorAll('button, a, [role="button"], input[type="button"]')
+    );
+    const btn = candidates.find((b) => COOKIE_ACCEPT_MATCH.test((b.textContent || b.value || "").trim()));
+    if (btn) {
+      log(`Bandeau cookies -> clic sur "${(btn.textContent || btn.value || "").trim()}"`);
+      btn.click();
+      return true;
+    }
+    return false;
+  }
+
   function buildCardMatcher(cardChoice) {
     if (cardChoice === "cdiscount_cla") {
       return { test: (text) => /cdiscount/i.test(text) && /cla/i.test(text) };
@@ -140,6 +159,7 @@
     let attempts = 0;
     const interval = setInterval(() => {
       attempts += 1;
+      tryAcceptCookies();
       if (
         tryRun({ cardMatcher, cardChoice, person, firstNameMatch, lastNameMatch, needsEnvSelect }) ||
         attempts >= MAX_ATTEMPTS

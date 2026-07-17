@@ -108,6 +108,25 @@
     );
   }
 
+  // Bandeau cookies (CMP type TrustCommander) : necessaire en navigation
+  // privee / premiere visite sur ce domaine, sinon il peut bloquer les clics
+  // sur le formulaire en dessous. DOM exact inconnu -> recherche par texte
+  // de bouton usuel. Idempotent, appele en boucle au demarrage.
+  const COOKIE_ACCEPT_MATCH = /tout accepter|accepter et fermer|^j'accepte|^accepter$|autoriser tout|accepter tous les cookies/i;
+  function tryAcceptCookies() {
+    const candidates = Array.from(
+      document.querySelectorAll('button, a, [role="button"], input[type="button"]')
+    );
+    const btn = candidates.find(
+      (b) => isVisible(b) && COOKIE_ACCEPT_MATCH.test((b.textContent || b.value || "").trim())
+    );
+    if (btn) {
+      clickCustom(btn);
+      return true;
+    }
+    return false;
+  }
+
   function setNativeValue(field, value) {
     const proto =
       field.tagName === "SELECT"
@@ -431,6 +450,8 @@
   // --------------------------- gestion des popins ---------------------------
 
   async function handleDialogs() {
+    tryAcceptCookies();
+
     // "Avez-vous bien verifie vos donnees personnelles ?" -> continuer
     let btn = findButtonByText(/^Poursuivre ma demande$/i);
     if (btn) {
@@ -607,6 +628,15 @@
   // ------------------------------- main --------------------------------------
 
   async function main() {
+    // Le bandeau cookies peut apparaitre avant meme que #cdiscountForm soit
+    // monte (utile en navigation privee) : quelques tentatives precoces en
+    // parallele, sans bloquer la suite si rien n'apparait.
+    let cookieAttempts = 0;
+    const cookieInterval = setInterval(() => {
+      cookieAttempts += 1;
+      if (tryAcceptCookies() || cookieAttempts >= 15) clearInterval(cookieInterval);
+    }, 400);
+
     const formRoot = await waitFor(() => document.querySelector("#cdiscountForm"));
     if (!formRoot) {
       // Mauvaise page (ex: etape intermediaire avant le vrai formulaire) :
