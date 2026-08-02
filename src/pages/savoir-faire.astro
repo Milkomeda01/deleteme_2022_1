@@ -1,0 +1,109 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import ContactCta from '../components/ContactCta.astro';
+import { details, photo } from '../data/content';
+
+const items = details.filter((d) => d.images.length);
+const hero = photo(items[0]?.images[0].new);
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: "Principes d'architecture bioclimatique — Denis Cartier Architecte",
+  itemListElement: items.map((d, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: d.h1,
+    description: (d.clean || d.text).split('\n')[0],
+  })),
+};
+---
+
+<Base
+  title="Savoir-faire bioclimatique — architecte à Bordeaux"
+  description="Avant-toits, galeries périphériques, patios, verrières ouvrantes, bardages à claire-voie : les principes bioclimatiques mis en œuvre par Denis Cartier, architecte DPLG en Gironde."
+  canonical="/savoir-faire/"
+  image={hero}
+  schema={schema}
+>
+  <section class="ph">
+    <div class="wrap">
+      <Breadcrumb items={[{ label: 'Savoir-faire' }]} />
+      <h1>Le bioclimatique, détail par détail</h1>
+      <div class="prose ph__intro">
+        <p>
+          Une maison confortable ne dépend pas d'abord de ses équipements, mais de sa
+          conception : orientation des volumes, profondeur des débords de toiture, filtres à
+          lumière, ventilation traversante. Ces dispositifs sont anciens, éprouvés, et coûtent
+          peu — bien mis en œuvre, ils rendent souvent la climatisation inutile.
+        </p>
+        <p>
+          Voici quelques principes récurrents dans les projets de l'agence, illustrés par les
+          réalisations où ils ont été mis en œuvre.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="section">
+    <div class="wrap">
+      <ul class="principes">
+        {items.map((d, i) => {
+          const meta = photo(d.images[0].new);
+          const body = (d.clean || d.text).split('\n').filter(Boolean);
+          return (
+            <li class="pr reveal" id={d.slug}>
+              <div class="pr__media">
+                {meta && (
+                  <Image
+                    src={meta}
+                    alt={d.images[0].alt || d.h1}
+                    widths={[420, 720, 1000]}
+                    sizes="(max-width: 52rem) 92vw, 30rem"
+                    loading={i < 2 ? 'eager' : 'lazy'}
+                    decoding="async"
+                  />
+                )}
+              </div>
+              <div class="pr__body">
+                <h2>{d.h1}</h2>
+                {body.map((p) => <p>{p}</p>)}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+
+  <ContactCta
+    title="Une maison pensée pour son climat"
+    text="Chaque terrain a son orientation, ses vents, ses ombres portées. Parlons de la vôtre."
+  />
+</Base>
+
+<style>
+  .ph { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(3rem, 6vw, 4.5rem); }
+  .ph h1 { margin: 1.75rem 0 2rem; max-width: 16ch; }
+  .ph__intro { max-width: 46rem; }
+
+  .principes { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(3rem, 7vw, 6rem); }
+  .pr {
+    display: grid; gap: clamp(1.5rem, 4vw, 3.5rem);
+    grid-template-columns: 1fr 1fr; align-items: center;
+    scroll-margin-top: 6rem;
+  }
+  .pr:nth-child(even) .pr__media { order: 2; }
+  @media (max-width: 52rem) {
+    .pr { grid-template-columns: 1fr; }
+    .pr:nth-child(even) .pr__media { order: 0; }
+  }
+  .pr__media :global(img) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .pr__body h2 { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem); margin-bottom: 0.75rem; }
+  .pr__body p { color: var(--ink-soft); margin-bottom: 0.9em; }
+  .pr__body p:last-child { margin-bottom: 0; }
+</style>

@@ -1,0 +1,98 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import ContactCta from '../components/ContactCta.astro';
+import { categories, type CategoryKey } from '../data/site';
+import { byCategory, cover, conseils } from '../data/content';
+
+export function getStaticPaths() {
+  return (Object.keys(categories) as CategoryKey[]).map((key) => ({
+    params: { categorie: categories[key].slug },
+    props: { key },
+  }));
+}
+
+const { key } = Astro.props as { key: CategoryKey };
+const c = categories[key];
+const items = byCategory(key);
+const hero = items.length ? cover(items[0]) : undefined;
+
+// Conseils liés : les articles photovoltaïques nourrissent la page photovoltaïque.
+const related = key === 'photovoltaique' ? conseils.filter((a) => /photovolta|solaire|agri/i.test(a.h1)) : [];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: c.h1,
+  description: c.description,
+  url: new URL(`/${c.slug}/`, Astro.site).href,
+  hasPart: items.map((r) => ({
+    '@type': 'CreativeWork',
+    name: r.h1,
+    url: new URL(`/realisations/${r.slug}/`, Astro.site).href,
+  })),
+};
+---
+
+<Base title={c.title} description={c.description} canonical={`/${c.slug}/`} image={hero} schema={schema}>
+  <section class="ph">
+    <div class="wrap">
+      <Breadcrumb items={[{ label: c.label }]} />
+      <div class="ph__grid">
+        <h1>{c.h1}</h1>
+        <div class="ph__intro prose">
+          {c.intro.map((p) => <p set:html={p} />)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">{items.length} réalisation{items.length > 1 ? 's' : ''}</p>
+      <div class="grid grid--3">
+        {items.map((r, i) => <ProjectCard entry={r} eager={i < 3} />)}
+      </div>
+    </div>
+  </section>
+
+  {related.length > 0 && (
+    <section class="section--tight rel">
+      <div class="wrap">
+        <p class="eyebrow">Comprendre le sujet</p>
+        <ul>
+          {related.map((a) => (
+            <li><a href={`/conseils/${a.slug}/`}>{a.h1}</a></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <ContactCta subject={c.label} />
+</Base>
+
+<style>
+  .ph { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(3rem, 6vw, 4.5rem); }
+  .ph__grid {
+    display: grid; gap: clamp(1.5rem, 4vw, 4rem);
+    grid-template-columns: 1fr 1.05fr; align-items: start;
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  @media (max-width: 60rem) { .ph__grid { grid-template-columns: 1fr; } }
+  .ph h1 { margin: 0; max-width: 16ch; font-size: clamp(2.1rem, 1.3rem + 3.4vw, 4rem); }
+  .ph__intro :global(p) { font-size: clamp(1rem, 0.97rem + 0.2vw, 1.08rem); }
+  .ph__intro :global(p:last-child) { margin-bottom: 0; }
+
+  .rel { background: var(--paper-2); }
+  .rel ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; max-width: 52rem; }
+  .rel a {
+    text-decoration: none; font-family: var(--font-display); font-size: clamp(1.1rem, 1rem + 0.5vw, 1.45rem);
+    border-bottom: 1px solid var(--line); display: block; padding-bottom: 0.7rem;
+    transition: border-color 0.3s var(--ease);
+  }
+  .rel a:hover { border-color: var(--ink); }
+</style>

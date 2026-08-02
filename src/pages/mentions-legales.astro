@@ -1,0 +1,86 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { site } from '../data/site';
+---
+
+<Base
+  title="Mentions légales"
+  description="Mentions légales du site deniscartierarchitecte.fr — Denis Cartier, architecte DPLG à Bordeaux."
+  canonical="/mentions-legales/"
+>
+  <section class="pg">
+    <div class="wrap">
+      <Breadcrumb items={[{ label: 'Mentions légales' }]} />
+      <h1>Mentions légales</h1>
+
+      <div class="prose">
+        <h2>Éditeur du site</h2>
+        <p>
+          <strong>CARTIER DENIS</strong> — Denis Cartier, architecte DPLG<br />
+          {site.address.street}, {site.address.postalCode} {site.address.city}<br />
+          Téléphone : <a href={`tel:${site.phoneHref}`}>{site.phone}</a><br />
+          E-mail : <a href={`mailto:${site.email}`}>{site.email}</a><br />
+          SIRET : 341 953 180 00021
+        </p>
+        <p>
+          Directeur de la publication et responsable de la rédaction : Denis Cartier.
+        </p>
+        <p>
+          Profession réglementée : architecte, titre protégé par la loi n° 77-2 du 3 janvier 1977
+          sur l'architecture. Denis Cartier est inscrit au tableau de l'Ordre des architectes
+          (Conseil régional de Nouvelle-Aquitaine) et soumis aux règles professionnelles fixées par
+          le décret n° 80-217 du 20 mars 1980 portant code des devoirs professionnels des architectes.
+          Assurance de responsabilité civile professionnelle conforme à l'article 16 de la loi sur
+          l'architecture.
+        </p>
+        <!-- À compléter avant mise en ligne : numéro d'inscription à l'Ordre, nom de
+             l'assureur et n° de police, numéro de TVA intracommunautaire. -->
+
+        <h2>Hébergement</h2>
+        <p>
+          Ce site est hébergé par <strong>Cloudflare, Inc.</strong><br />
+          101 Townsend St, San Francisco, CA 94107, États-Unis —
+          <a href="https://www.cloudflare.com" target="_blank" rel="noopener">cloudflare.com</a>
+        </p>
+
+        <h2>Propriété intellectuelle</h2>
+        <p>
+          L'ensemble des contenus de ce site — textes, plans, perspectives 3D et photographies de
+          réalisations — est la propriété de Denis Cartier ou de ses ayants droit. Toute
+          reproduction, représentation ou diffusion, totale ou partielle, sans autorisation écrite
+          préalable est interdite et constituerait une contrefaçon au sens des articles L.335-2 et
+          suivants du Code de la propriété intellectuelle.
+        </p>
+
+        <h2>Responsabilité</h2>
+        <p>
+          Les informations publiées sur ce site sont fournies à titre indicatif. Elles ne
+          constituent ni un devis, ni un engagement contractuel. Malgré le soin apporté à leur
+          mise à jour, des erreurs ou omissions peuvent subsister : leur signalement est bienvenu à
+          l'adresse <a href={`mailto:${site.email}`}>{site.email}</a>.
+        </p>
+
+        <h2>Données personnelles</h2>
+        <p>
+          Le traitement des données transmises via le formulaire de contact est détaillé dans notre
+          <a href="/politique-de-confidentialite/">politique de confidentialité</a>.
+        </p>
+
+        <h2>Médiation de la consommation</h2>
+        <p>
+          Conformément à l'article L.612-1 du Code de la consommation, tout consommateur peut
+          recourir gratuitement à un médiateur de la consommation en vue de la résolution amiable
+          d'un litige. Les coordonnées du médiateur compétent sont communiquées sur simple demande
+          et figurent dans les conditions du contrat d'architecte.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .pg { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(4rem, 8vw, 6rem); }
+  .pg h1 { margin: 1.75rem 0 2.5rem; }
+  .pg .prose :global(h2:first-of-type) { margin-top: 0; }
+</style>

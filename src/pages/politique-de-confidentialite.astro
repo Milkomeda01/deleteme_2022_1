@@ -1,0 +1,88 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { site } from '../data/site';
+---
+
+<Base
+  title="Politique de confidentialité"
+  description="Comment Denis Cartier Architecte traite les données transmises via le formulaire de contact : finalité, durée de conservation et droits RGPD."
+  canonical="/politique-de-confidentialite/"
+>
+  <section class="pg">
+    <div class="wrap">
+      <Breadcrumb items={[{ label: 'Politique de confidentialité' }]} />
+      <h1>Politique de confidentialité</h1>
+
+      <div class="prose">
+        <p class="lede">
+          Ce site ne dépose aucun cookie publicitaire, n'utilise aucun traceur tiers et ne partage
+          vos données avec personne. Les seules données collectées sont celles que vous saisissez
+          volontairement dans le formulaire de contact.
+        </p>
+
+        <h2>Responsable du traitement</h2>
+        <p>
+          Denis Cartier, architecte DPLG — {site.address.street}, {site.address.postalCode}{' '}
+          {site.address.city}. Contact : <a href={`mailto:${site.email}`}>{site.email}</a>.
+        </p>
+
+        <h2>Données collectées et finalité</h2>
+        <p>
+          Lorsque vous remplissez le formulaire de contact, sont enregistrés : vos nom et prénom,
+          votre numéro de téléphone, votre adresse e-mail, le type de projet et le message que
+          vous rédigez. Ces données servent <strong>uniquement</strong> à répondre à votre demande
+          et, le cas échéant, à établir la relation contractuelle qui peut en découler.
+        </p>
+        <p>
+          Base légale : votre consentement (article 6.1.a du RGPD), recueilli par la case à cocher
+          du formulaire, et l'exécution de mesures précontractuelles prises à votre demande
+          (article 6.1.b).
+        </p>
+
+        <h2>Destinataires</h2>
+        <p>
+          Vos données sont adressées à Denis Cartier seul. Elles ne sont ni vendues, ni louées, ni
+          transmises à des partenaires commerciaux. Elles transitent techniquement par
+          l'infrastructure de notre hébergeur, Cloudflare, pour l'acheminement du message.
+        </p>
+
+        <h2>Durée de conservation</h2>
+        <p>
+          Trois ans à compter du dernier contact pour les demandes sans suite ; pendant toute la
+          durée de la relation contractuelle puis conformément aux obligations légales de
+          conservation (dix ans pour les pièces comptables et les dossiers de maîtrise d'œuvre)
+          lorsqu'un contrat est conclu.
+        </p>
+
+        <h2>Vos droits</h2>
+        <p>
+          Vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation,
+          d'opposition et de portabilité de vos données. Pour l'exercer, écrivez à
+          <a href={`mailto:${site.email}`}>{site.email}</a> — une réponse vous sera apportée sous un
+          mois. Vous pouvez également introduire une réclamation auprès de la CNIL
+          (<a href="https://www.cnil.fr" target="_blank" rel="noopener">cnil.fr</a>).
+        </p>
+
+        <h2>Cookies et mesure d'audience</h2>
+        <p>
+          Aucun cookie n'est déposé sur votre terminal lors de la simple consultation du site.
+          Aucun outil de mesure d'audience tiers (Google Analytics ou équivalent) n'y est intégré :
+          aucune bannière de consentement n'est donc nécessaire.
+        </p>
+
+        <h2>Sécurité</h2>
+        <p>
+          Le site est intégralement servi en HTTPS. Les messages du formulaire sont transmis de
+          façon chiffrée et protégés contre les envois automatisés.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .pg { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(4rem, 8vw, 6rem); }
+  .pg h1 { margin: 1.75rem 0 2rem; }
+  .pg .prose .lede { margin-bottom: 2rem; }
+</style>

@@ -1,0 +1,78 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ContactCta from '../../components/ContactCta.astro';
+import { conseils, photo, cover, excerpt, type Entry } from '../../data/content';
+
+export function getStaticPaths() {
+  return conseils.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: Entry };
+const hero = entry.images.length ? photo(entry.images[0].new) : undefined;
+const description = entry.description?.trim() || excerpt(entry, 155);
+const others = conseils.filter((a) => a.slug !== entry.slug).slice(0, 3);
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: entry.h1,
+  description,
+  inLanguage: 'fr-FR',
+  author: { '@id': `${Astro.site}#organisation` },
+  publisher: { '@id': `${Astro.site}#organisation` },
+  mainEntityOfPage: new URL(`/conseils/${entry.slug}/`, Astro.site).href,
+  ...(hero ? { image: new URL(hero.src, Astro.site).href } : {}),
+};
+---
+
+<Base title={entry.title} description={description} canonical={`/conseils/${entry.slug}/`} image={cover(entry)} schema={schema}>
+  <article class="art">
+    <div class="wrap">
+      <Breadcrumb items={[{ href: '/conseils/', label: 'Conseils' }, { label: entry.h1 }]} />
+      <h1>{entry.h1}</h1>
+    </div>
+
+    {hero && (
+      <div class="art__hero wrap">
+        <Image src={hero} alt={entry.images[0].alt || entry.h1} widths={[760, 1200, 1800]} sizes="(max-width: 78rem) 100vw, 78rem" loading="eager" decoding="async" />
+      </div>
+    )}
+
+    <div class="wrap">
+      <div class="prose art__body" set:html={entry.bodyHtml} />
+    </div>
+  </article>
+
+  {others.length > 0 && (
+    <section class="section--tight more">
+      <div class="wrap">
+        <p class="eyebrow">À lire aussi</p>
+        <ul>
+          {others.map((a) => <li><a href={`/conseils/${a.slug}/`}>{a.h1}</a></li>)}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <ContactCta subject={entry.h1} />
+</Base>
+
+<style>
+  .art { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(3rem, 6vw, 5rem); }
+  .art h1 { margin: 1.75rem 0 2rem; max-width: 24ch; }
+  .art__hero { margin-bottom: clamp(2rem, 4vw, 3.5rem); }
+  .art__hero :global(img) { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  .art__body :global(p) { font-size: clamp(1.02rem, 0.99rem + 0.2vw, 1.12rem); }
+
+  .more { border-top: 1px solid var(--line); }
+  .more ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; max-width: 52rem; }
+  .more a {
+    text-decoration: none; font-family: var(--font-display);
+    font-size: clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
+    display: block; padding-bottom: 0.7rem; border-bottom: 1px solid var(--line);
+    transition: border-color 0.3s var(--ease);
+  }
+  .more a:hover { border-color: var(--ink); }
+</style>

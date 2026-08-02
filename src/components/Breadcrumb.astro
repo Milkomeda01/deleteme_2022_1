@@ -1,0 +1,37 @@
+---
+interface Crumb { href?: string; label: string; }
+interface Props { items: Crumb[]; }
+const { items } = Astro.props;
+const all: Crumb[] = [{ href: '/', label: 'Accueil' }, ...items];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: all.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.label,
+    ...(c.href ? { item: new URL(c.href, Astro.site).href } : {}),
+  })),
+};
+---
+
+<nav class="bc" aria-label="Fil d'Ariane">
+  <ol>
+    {all.map((c, i) => (
+      <li>
+        {c.href && i < all.length - 1 ? <a href={c.href}>{c.label}</a> : <span aria-current="page">{c.label}</span>}
+      </li>
+    ))}
+  </ol>
+</nav>
+<script type="application/ld+json" set:html={JSON.stringify(schema)} is:inline />
+
+<style>
+  .bc { font-size: 0.74rem; letter-spacing: 0.04em; color: var(--ink-mute); }
+  .bc ol { list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; padding: 0; }
+  .bc li + li::before { content: '/'; margin-right: 0.5rem; opacity: 0.5; }
+  .bc a { text-decoration: none; }
+  .bc a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; }
+  .bc span { color: var(--ink-soft); }
+</style>

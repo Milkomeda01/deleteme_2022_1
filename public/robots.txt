@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://www.deniscartierarchitecte.fr/sitemap-index.xml

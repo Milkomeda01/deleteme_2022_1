@@ -1,0 +1,159 @@
+---
+import { nav, site } from '../data/site';
+const path = Astro.url.pathname;
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<header class="hd" data-header>
+  <div class="hd__inner">
+    <a class="hd__brand" href="/" aria-label={`${site.name} — accueil`}>
+      <span class="hd__name">Denis Cartier</span>
+      <span class="hd__role">Architecte DPLG</span>
+    </a>
+
+    <nav class="hd__nav" aria-label="Navigation principale">
+      <ul>
+        {nav.map((n) => (
+          <li>
+            <a href={n.href} aria-current={isActive(n.href) ? 'page' : undefined}>{n.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <a class="hd__tel" href={`tel:${site.phoneHref}`}>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"
+        ><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.11 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke-linecap="round" stroke-linejoin="round"/></svg
+      >
+      <span>{site.phone}</span>
+    </a>
+
+    <button class="hd__burger" type="button" aria-expanded="false" aria-controls="menu-mobile" data-burger>
+      <span class="sr-only">Ouvrir le menu</span>
+      <span class="hd__bars" aria-hidden="true"><i></i><i></i></span>
+    </button>
+  </div>
+
+  <div class="mnu" id="menu-mobile" hidden data-menu>
+    <nav aria-label="Navigation mobile">
+      <ul>
+        {nav.map((n) => (
+          <li><a href={n.href} aria-current={isActive(n.href) ? 'page' : undefined}>{n.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <div class="mnu__foot">
+      <a href={`tel:${site.phoneHref}`}>{site.phone}</a>
+      <a href={`mailto:${site.email}`}>{site.email}</a>
+      <p>{site.address.street}<br />{site.address.postalCode} {site.address.city}</p>
+    </div>
+  </div>
+</header>
+
+<a class="callbar" href={`tel:${site.phoneHref}`}>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"
+    ><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.11 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke-linecap="round" stroke-linejoin="round"/></svg
+  >
+  Appeler l'architecte
+</a>
+
+<style>
+  .hd {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(14px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s var(--ease), background 0.3s var(--ease);
+  }
+  .hd[data-stuck] { border-bottom-color: var(--line); }
+
+  .hd__inner {
+    max-width: var(--w);
+    margin-inline: auto;
+    padding: 0.9rem var(--gut);
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 2.75rem);
+  }
+
+  .hd__brand { text-decoration: none; display: grid; line-height: 1.1; margin-right: auto; }
+  .hd__name { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.005em; white-space: nowrap; }
+  .hd__role {
+    font-size: 0.6rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-mute); font-weight: 500; margin-top: 0.18rem;
+    white-space: nowrap;
+  }
+
+  .hd__nav ul { display: flex; gap: clamp(1rem, 2.1vw, 2rem); list-style: none; margin: 0; padding: 0; }
+  .hd__nav a {
+    text-decoration: none; font-size: 0.775rem; font-weight: 480;
+    letter-spacing: 0.055em; color: var(--ink-soft);
+    padding-block: 0.3rem; border-bottom: 1px solid transparent;
+    transition: color 0.25s var(--ease), border-color 0.25s var(--ease);
+    white-space: nowrap;
+  }
+  .hd__nav a:hover { color: var(--ink); }
+  .hd__nav a[aria-current='page'] { color: var(--ink); border-bottom-color: var(--brass); }
+
+  .hd__tel {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    text-decoration: none; font-size: 0.83rem; font-weight: 520; letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  /* flex: none + dimensions intrinsèques : sans quoi max-width:100% du reset
+     écrase la largeur à 0 dans un conteneur inline-flex. */
+  .hd__tel svg { width: 1rem; height: 1rem; flex: none; color: var(--brass); }
+  .hd__tel:hover { color: var(--brass); }
+
+  .hd__burger {
+    display: none; background: none; border: 0; padding: 0.6rem; cursor: pointer; color: inherit;
+  }
+  .hd__bars { display: grid; gap: 6px; width: 24px; }
+  .hd__bars i { display: block; height: 1px; background: var(--ink); transition: transform 0.35s var(--ease), opacity 0.25s; }
+  .hd__burger[aria-expanded='true'] i:first-child { transform: translateY(3.5px) rotate(45deg); }
+  .hd__burger[aria-expanded='true'] i:last-child { transform: translateY(-3.5px) rotate(-45deg); }
+
+  .mnu { border-top: 1px solid var(--line); padding: 1.5rem var(--gut) 2.5rem; background: var(--paper); }
+  .mnu ul { list-style: none; margin: 0 0 2rem; padding: 0; display: grid; gap: 0.15rem; }
+  .mnu a { text-decoration: none; font-family: var(--font-display); font-size: 1.75rem; display: block; padding: 0.4rem 0; }
+  .mnu a[aria-current='page'] { color: var(--brass); }
+  .mnu__foot { display: grid; gap: 0.4rem; font-size: 0.9rem; color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 1.5rem; }
+  .mnu__foot a { text-decoration: none; }
+  .mnu__foot p { margin: 0.4rem 0 0; }
+
+  /* Barre d'appel permanente sur mobile — le premier canal de contact d'un artisan. */
+  .callbar { display: none; }
+
+  @media (max-width: 62rem) {
+    .hd__nav, .hd__tel { display: none; }
+    .hd__burger { display: block; }
+    .callbar {
+      position: fixed; inset: auto 0 0 0; z-index: 99;
+      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+      background: var(--ink); color: var(--paper);
+      padding: 0.95rem 1rem calc(0.95rem + env(safe-area-inset-bottom));
+      font-size: 0.82rem; font-weight: 560; letter-spacing: 0.1em; text-transform: uppercase;
+      text-decoration: none;
+    }
+    .callbar svg { width: 1.05rem; height: 1.05rem; }
+    body { padding-bottom: 3.6rem; }
+  }
+</style>
+
+<script>
+  const burger = document.querySelector<HTMLButtonElement>('[data-burger]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  burger?.addEventListener('click', () => {
+    const open = burger.getAttribute('aria-expanded') === 'true';
+    burger.setAttribute('aria-expanded', String(!open));
+    if (menu) menu.hidden = open;
+    burger.querySelector('.sr-only')!.textContent = open ? 'Ouvrir le menu' : 'Fermer le menu';
+  });
+
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const onScroll = () => header?.toggleAttribute('data-stuck', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+</script>

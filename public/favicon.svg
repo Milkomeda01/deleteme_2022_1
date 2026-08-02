@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Denis Cartier Architecte">
+  <rect width="64" height="64" fill="#14140f"/>
+  <!-- Toiture débordante et poteaux : la signature bioclimatique de l'agence. -->
+  <path d="M8 30 32 14l24 16" fill="none" stroke="#fbfaf7" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
+  <path d="M17 30v20M47 30v20" fill="none" stroke="#8a6f3c" stroke-width="3.5" stroke-linecap="square"/>
+  <path d="M17 50h30" fill="none" stroke="#fbfaf7" stroke-width="3.5" stroke-linecap="square"/>
+</svg>

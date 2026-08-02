@@ -1,0 +1,115 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { site } from '../data/site';
+
+const mapQuery = encodeURIComponent(`${site.address.street}, ${site.address.postalCode} ${site.address.city}`);
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Contacter Denis Cartier Architecte à Bordeaux',
+  url: new URL('/contact/', Astro.site).href,
+  mainEntity: { '@id': `${Astro.site}#organisation` },
+};
+---
+
+<Base
+  title="Contact — Denis Cartier Architecte à Bordeaux"
+  description="Contactez Denis Cartier, architecte DPLG à Bordeaux : 05 40 25 05 05, 4 rue Francis Martin, 33000 Bordeaux. Étude de faisabilité et devis pour votre projet en Gironde."
+  canonical="/contact/"
+  schema={schema}
+>
+  <section class="ph">
+    <div class="wrap">
+      <Breadcrumb items={[{ label: 'Contact' }]} />
+      <h1>Parlons de votre projet</h1>
+      <p class="lede">
+        Un terrain, une idée, une contrainte de budget ? Décrivez votre projet en quelques lignes.
+        Denis Cartier vous rappelle pour un premier échange gratuit et sans engagement.
+      </p>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="section">
+    <div class="wrap ct">
+      <div class="ct__form">
+        <h2 class="sr-only">Formulaire de contact</h2>
+        <ContactForm />
+      </div>
+
+      <aside class="ct__side">
+        <div class="ct__block">
+          <h2>Coordonnées</h2>
+          <ul>
+            <li>
+              <span>Téléphone</span>
+              <a href={`tel:${site.phoneHref}`}>{site.phone}</a>
+            </li>
+            <li>
+              <span>E-mail</span>
+              <a href={`mailto:${site.email}`}>{site.email}</a>
+            </li>
+            <li>
+              <span>Agence</span>
+              <p>{site.address.street}<br />{site.address.postalCode} {site.address.city}</p>
+              <a class="link-arrow" href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`} target="_blank" rel="noopener">Itinéraire</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="ct__block">
+          <h2>Zone d'intervention</h2>
+          <p>
+            Bordeaux et sa métropole, Bassin d'Arcachon, Cap Ferret, Lacanau, Andernos-les-Bains,
+            Biscarrosse, Gironde et Nouvelle-Aquitaine.
+          </p>
+        </div>
+
+        <div class="ct__block">
+          <h2>Ce qui aide à répondre vite</h2>
+          <ul class="ct__tips">
+            <li>La commune et, si possible, la référence cadastrale du terrain</li>
+            <li>La surface habitable envisagée</li>
+            <li>Le budget travaux approximatif</li>
+            <li>Votre échéance souhaitée</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .ph { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(2.5rem, 5vw, 4rem); }
+  .ph h1 { margin: 1.75rem 0 1.25rem; }
+  .ph .lede { max-width: 48ch; }
+
+  .ct { display: grid; gap: clamp(3rem, 6vw, 5rem); grid-template-columns: 1.35fr 1fr; align-items: start; }
+  @media (max-width: 56rem) { .ct { grid-template-columns: 1fr; } }
+
+  .ct__side { display: grid; gap: 2.5rem; }
+  .ct__block h2 {
+    font-family: var(--font-sans); font-size: 0.66rem; font-weight: 560;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--brass);
+    margin: 0 0 1.1rem;
+  }
+  .ct__block > p { color: var(--ink-soft); margin: 0; font-size: 0.95rem; }
+  .ct__block ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.4rem; }
+  .ct__block li span {
+    display: block; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-mute); margin-bottom: 0.3rem;
+  }
+  .ct__block li a { text-decoration: none; font-family: var(--font-display); font-size: 1.35rem; }
+  .ct__block li a:hover { color: var(--brass); }
+  .ct__block li p { margin: 0 0 0.6rem; font-family: var(--font-display); font-size: 1.35rem; line-height: 1.35; }
+  .ct__block li .link-arrow { font-family: var(--font-sans); font-size: 0.72rem; }
+
+  .ct__tips { gap: 0.6rem !important; }
+  .ct__tips li {
+    font-size: 0.92rem; color: var(--ink-soft); padding-left: 1.1rem; position: relative; line-height: 1.55;
+  }
+  .ct__tips li::before { content: '—'; position: absolute; left: 0; color: var(--brass); }
+</style>
