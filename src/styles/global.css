@@ -79,6 +79,10 @@ strong{font-weight:560;color:var(--ink)}
 /* ---------- Structure ---------- */
 .wrap{width:100%;max-width:var(--w);margin-inline:auto;padding-inline:var(--gut)}
 .wrap-text{max-width:var(--w-text)}
+
+/* Échappe la largeur de contenu pour aller de bord à bord.
+   body a overflow-x:hidden, donc 100vw ne crée pas de défilement latéral. */
+.bleed{width:100vw;margin-inline:calc(50% - 50vw)}
 .section{padding-block:var(--sp)}
 .section--tight{padding-block:calc(var(--sp) * .58)}
 .rule{border:0;border-top:1px solid var(--line);margin:0}

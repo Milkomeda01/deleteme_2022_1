@@ -1,0 +1,160 @@
+---
+/**
+ * Animation pilotée par le défilement : une séquence d'images est « scrubbée »
+ * comme une pellicule, la position de la page servant de curseur temporel.
+ * C'est la technique employée par Rolex ou Apple pour faire tourner un objet.
+ *
+ * Les images doivent être une orbite régulière autour du même sujet, cadrage
+ * et éclairage constants. Ici : un rendu 3D exporté image par image.
+ */
+interface Props {
+  /** Modèle du chemin, `%` remplacé par l'index sur 3 chiffres. */
+  pattern: string;
+  frames: number;
+  eyebrow?: string;
+  title: string;
+  text?: string;
+  /** Hauteur de défilement : plus c'est haut, plus la rotation est lente. */
+  scroll?: string;
+}
+const { pattern, frames, eyebrow, title, text, scroll = '320svh' } = Astro.props;
+const first = pattern.replace('%', '000');
+---
+
+<section class="seq" data-seq data-pattern={pattern} data-frames={frames} style={`--scroll:${scroll}`}>
+  <div class="seq__sticky">
+    <canvas class="seq__canvas" data-canvas aria-hidden="true"></canvas>
+
+    <!-- Repli sans JavaScript et pour « animations réduites » : une image fixe. -->
+    <noscript><img src={first} alt={title} class="seq__static" /></noscript>
+
+    <div class="seq__overlay">
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h2>{title}</h2>
+      {text && <p class="seq__text">{text}</p>}
+    </div>
+
+    <p class="seq__hint" data-hint aria-hidden="true">Faites défiler</p>
+  </div>
+</section>
+
+<style>
+  .seq { height: var(--scroll); position: relative; background: var(--paper-2); }
+  .seq__sticky {
+    position: sticky; top: 0; height: 100svh;
+    display: grid; place-items: center; overflow: hidden;
+  }
+  .seq__canvas, .seq__static {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: contain;
+  }
+
+  .seq__overlay {
+    position: relative; z-index: 1;
+    max-width: min(30rem, 78vw);
+    margin-left: clamp(1.25rem, 6vw, 6rem);
+    justify-self: start;
+    text-shadow: 0 1px 24px color-mix(in srgb, var(--paper-2) 85%, transparent);
+  }
+  .seq__overlay h2 { margin: 0 0 0.75rem; }
+  .seq__text { margin: 0; color: var(--ink-soft); font-size: 1.02rem; }
+  @media (max-width: 52rem) {
+    .seq__sticky { align-content: end; }
+    .seq__overlay { justify-self: center; margin: 0 1.25rem 4rem; text-align: center; }
+  }
+
+  .seq__hint {
+    position: absolute; bottom: 1.6rem; left: 50%; transform: translateX(-50%);
+    margin: 0; font-size: 0.66rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--ink-mute); transition: opacity 0.5s var(--ease);
+  }
+  .seq__hint[data-off] { opacity: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .seq { height: auto; }
+    .seq__sticky { position: static; height: auto; padding-block: clamp(3rem, 8vw, 6rem); }
+    .seq__canvas { position: static; height: min(60svh, 30rem); }
+    .seq__hint { display: none; }
+  }
+</style>
+
+<script>
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('[data-seq]').forEach((section) => {
+    const canvas = section.querySelector<HTMLCanvasElement>('[data-canvas]')!;
+    const hint = section.querySelector<HTMLElement>('[data-hint]');
+    const ctx = canvas.getContext('2d', { alpha: false })!;
+    const pattern = section.dataset.pattern!;
+    const total = Number(section.dataset.frames);
+
+    const images: HTMLImageElement[] = [];
+    let loaded = 0;
+    let current = -1;
+    let pending = false;
+
+    const src = (i: number) => pattern.replace('%', String(i).padStart(3, '0'));
+
+    const draw = (i: number) => {
+      const img = images[i];
+      if (!img?.complete || !img.naturalWidth) return;
+      current = i;
+
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      const w = canvas.clientWidth * dpr;
+      const h = canvas.clientHeight * dpr;
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+
+      ctx.fillStyle = getComputedStyle(section).backgroundColor || '#f2efe9';
+      ctx.fillRect(0, 0, w, h);
+
+      // « contain » : l'objet reste entier quelle que soit la fenêtre.
+      const scale = Math.min(w / img.naturalWidth, h / img.naturalHeight);
+      const dw = img.naturalWidth * scale;
+      const dh = img.naturalHeight * scale;
+      // Sur grand écran le texte occupe la gauche : on pousse le volume à droite.
+      const shift = innerWidth >= 832 ? w * 0.17 : 0;
+      ctx.drawImage(img, (w - dw) / 2 + shift, (h - dh) / 2, dw, dh);
+    };
+
+    const frameFromScroll = () => {
+      const rect = section.getBoundingClientRect();
+      const span = rect.height - innerHeight;
+      const p = span > 0 ? Math.min(Math.max(-rect.top / span, 0), 1) : 0;
+      hint?.toggleAttribute('data-off', p > 0.04);
+      return Math.min(total - 1, Math.round(p * (total - 1)));
+    };
+
+    const update = () => {
+      pending = false;
+      const i = frameFromScroll();
+      if (i !== current) draw(i);
+    };
+
+    const onScroll = () => {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(update);
+    };
+
+    // Charge la première image tout de suite, le reste ensuite.
+    for (let i = 0; i < total; i++) {
+      const img = new Image();
+      img.decoding = 'async';
+      img.src = src(i);
+      img.onload = () => {
+        loaded++;
+        if (i === 0 || loaded === total) update();
+      };
+      images.push(img);
+    }
+
+    if (reduced) {
+      images[0].onload = () => draw(0);
+      return;
+    }
+
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', () => { current = -1; update(); }, { passive: true });
+  });
+</script>

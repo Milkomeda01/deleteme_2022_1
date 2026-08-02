@@ -22,6 +22,7 @@
     "build": "node scripts/build-redirects.mjs && astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "redirects": "node scripts/build-redirects.mjs"
+    "redirects": "node scripts/build-redirects.mjs",
+    "build:preview": "node scripts/build-redirects.mjs && astro build && node scripts/preview-fix.mjs"
   }
 }

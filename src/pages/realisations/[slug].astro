@@ -45,12 +45,12 @@ const schema = {
     </section>
 
     {hero && (
-      <div class="hero">
+      <div class="hero bleed">
         <Image
           src={hero}
           alt={entry.images[0].alt || entry.h1}
-          widths={[760, 1200, 1800, 2200]}
-          sizes="(max-width: 78rem) 100vw, 78rem"
+          widths={[760, 1200, 1800, 2600]}
+          sizes="100vw"
           loading="eager"
           fetchpriority="high"
           decoding="async"
@@ -108,9 +108,9 @@ const schema = {
   .ph__cat { margin: 1.75rem 0 0.9rem; }
   .ph h1 { margin: 0; max-width: 22ch; font-size: clamp(1.9rem, 1.25rem + 2.7vw, 3.4rem); }
 
-  .hero { max-width: var(--w); margin-inline: auto; padding-inline: var(--gut); }
-  .hero :global(img) { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-  @media (max-width: 40rem) { .hero :global(img) { aspect-ratio: 4 / 3; } }
+  /* Photo de tête de bord à bord : la réalisation occupe toute la largeur. */
+  .hero :global(img) { width: 100%; height: min(76svh, 46rem); object-fit: cover; }
+  @media (max-width: 48rem) { .hero :global(img) { height: min(56svh, 26rem); } }
 
   .body :global(p) { font-size: clamp(1.02rem, 0.99rem + 0.2vw, 1.12rem); }
   .body :global(strong) { color: var(--ink); }

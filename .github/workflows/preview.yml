@@ -1,0 +1,53 @@
+name: Aperçu GitHub Pages
+
+# Publie une version de test consultable publiquement, sans compte ni connexion.
+# À activer une fois : Settings → Pages → Source : « GitHub Actions ».
+# Cet aperçu est marqué noindex : il ne concurrencera pas le vrai domaine.
+
+on:
+  push:
+    branches: ['claude/rebuild-cartier-architect-site-ve0aj3', 'main']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Construire l'aperçu
+        env:
+          PREVIEW: '1'
+          PREVIEW_SITE: https://${{ github.repository_owner }}.github.io
+          PREVIEW_BASE: /${{ github.event.repository.name }}
+        run: npm run build:preview
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
