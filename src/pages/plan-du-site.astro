@@ -1,0 +1,79 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { categories, type CategoryKey } from '../data/site';
+import { byCategory, conseils, details } from '../data/content';
+
+const groups = (Object.keys(categories) as CategoryKey[]).map((k) => ({
+  cat: categories[k],
+  items: byCategory(k),
+}));
+---
+
+<Base
+  title="Plan du site"
+  description="Toutes les pages du site de Denis Cartier, architecte DPLG à Bordeaux."
+  canonical="/plan-du-site/"
+>
+  <section class="pg">
+    <div class="wrap">
+      <Breadcrumb items={[{ label: 'Plan du site' }]} />
+      <h1>Plan du site</h1>
+
+      <div class="cols">
+        <section>
+          <h2>Pages principales</h2>
+          <ul>
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/realisations/">Toutes les réalisations</a></li>
+            <li><a href="/savoir-faire/">Savoir-faire bioclimatique</a></li>
+            <li><a href="/conseils/">Conseils</a></li>
+            <li><a href="/contact/">Contact</a></li>
+            <li><a href="/mentions-legales/">Mentions légales</a></li>
+            <li><a href="/politique-de-confidentialite/">Politique de confidentialité</a></li>
+          </ul>
+        </section>
+
+        {groups.map(({ cat, items }) => (
+          <section>
+            <h2><a href={`/${cat.slug}/`}>{cat.label}</a></h2>
+            <ul>
+              {items.map((r) => <li><a href={`/realisations/${r.slug}/`}>{r.h1}</a></li>)}
+            </ul>
+          </section>
+        ))}
+
+        <section>
+          <h2><a href="/savoir-faire/">Principes bioclimatiques</a></h2>
+          <ul>
+            {details.filter((d) => d.images.length).map((d) => (
+              <li><a href={`/savoir-faire/#${d.slug}`}>{d.h1}</a></li>
+            ))}
+          </ul>
+        </section>
+
+        <section>
+          <h2><a href="/conseils/">Conseils</a></h2>
+          <ul>
+            {conseils.map((a) => <li><a href={`/conseils/${a.slug}/`}>{a.h1}</a></li>)}
+          </ul>
+        </section>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .pg { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(4rem, 8vw, 6rem); }
+  .pg h1 { margin: 1.75rem 0 2.5rem; }
+  .cols { columns: 2 20rem; column-gap: clamp(2rem, 5vw, 4rem); }
+  .cols section { break-inside: avoid; margin-bottom: 2.75rem; }
+  .cols h2 {
+    font-family: var(--font-sans); font-size: 0.68rem; font-weight: 560;
+    letter-spacing: 0.19em; text-transform: uppercase; color: var(--brass); margin: 0 0 1rem;
+  }
+  .cols h2 a { text-decoration: none; }
+  .cols ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; }
+  .cols li a { text-decoration: none; font-size: 0.93rem; color: var(--ink-soft); line-height: 1.45; }
+  .cols li a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 0.2em; }
+</style>

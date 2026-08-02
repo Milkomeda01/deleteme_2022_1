@@ -1,0 +1,56 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import ContactCta from '../../components/ContactCta.astro';
+import { categories, type CategoryKey } from '../../data/site';
+import { byCategory, realisations, cover } from '../../data/content';
+
+const groups = (Object.keys(categories) as CategoryKey[]).map((k) => ({
+  cat: categories[k],
+  items: byCategory(k),
+}));
+const hero = cover(realisations[0]);
+---
+
+<Base
+  title="Réalisations d'architecte à Bordeaux et en Gironde"
+  description="Toutes les réalisations de Denis Cartier, architecte DPLG à Bordeaux : maisons contemporaines en ossature bois ou métal, bâtiments professionnels, logements collectifs et centrales photovoltaïques."
+  canonical="/realisations/"
+  image={hero}
+>
+  <section class="ph">
+    <div class="wrap">
+      <Breadcrumb items={[{ label: 'Réalisations' }]} />
+      <h1>Réalisations</h1>
+      <p class="lede">
+        {realisations.length} projets conçus et suivis par l'agence, de la maison individuelle
+        au parc photovoltaïque, à Bordeaux, sur le Bassin d'Arcachon et en Nouvelle-Aquitaine.
+      </p>
+    </div>
+  </section>
+
+  {groups.map(({ cat, items }) => (
+    <section class="section--tight">
+      <div class="wrap">
+        <header class="head">
+          <h2>{cat.label}</h2>
+          <a class="link-arrow" href={`/${cat.slug}/`}>En savoir plus</a>
+        </header>
+        <div class="grid grid--3">
+          {items.map((r) => <ProjectCard entry={r} />)}
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <ContactCta />
+</Base>
+
+<style>
+  .ph { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(2rem, 4vw, 3rem); }
+  .ph h1 { margin: 1.75rem 0 1.25rem; }
+  .ph .lede { max-width: 46ch; }
+  .head { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: baseline; justify-content: space-between; margin-bottom: 2.25rem; }
+  .head h2 { margin: 0; }
+</style>

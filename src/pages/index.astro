@@ -1,0 +1,282 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import ContactCta from '../components/ContactCta.astro';
+import { categories, site } from '../data/site';
+import { realisations, details, photo, byCategory } from '../data/content';
+
+const hero = photo('facadesudber.jpg')!;
+
+const domainCards = [
+  { key: 'maisons', img: 'imgp0222light.jpg', count: byCategory('maisons').length },
+  { key: 'photovoltaique', img: 'perspectivecentraleausolhourtin.jpg', count: byCategory('photovoltaique').length },
+  { key: 'professionnels', img: 'imgp5733.jpg', count: byCategory('professionnels').length },
+] as const;
+
+const featured = [
+  'realisation-architecte-projet-maison-tchanquee-bassin-d-arcachon',
+  'projet-d-architecte-pour-maison-acier-corten-bordeaux-gironde',
+  'architecte-maison-contemporaine-avec-patio-central-cap-ferret',
+  'projet-d-architecture-pour-maison-en-ossature-metallique-et-bois-sur-le-bassi',
+  'architecte-pour-projet-de-maison-a-ossature-bois-au-bord-du-lac-de-lacanau',
+  'architecte-pour-surelevation-d-une-echoppe-a-bordeaux-en-gironde',
+]
+  .map((s) => realisations.find((r) => r.slug.startsWith(s.slice(0, 55))))
+  .filter(Boolean)
+  .slice(0, 6) as typeof realisations;
+
+const savoirFaire = details.filter((d) => d.images.length).slice(0, 4);
+
+const steps = [
+  { n: '01', t: 'Écoute et faisabilité', d: "Analyse du terrain, du PLU et de votre programme. Vous savez rapidement ce qui est constructible, et à quel budget." },
+  { n: '02', t: 'Esquisse et 3D hyper-réaliste', d: "Le projet est modélisé en trois dimensions : vous voyez votre maison avant qu'un seul mur ne soit monté." },
+  { n: '03', t: 'Permis de construire', d: "Constitution et dépôt du dossier complet, suivi de l'instruction jusqu'à l'obtention de l'autorisation." },
+  { n: '04', t: 'Chantier et réception', d: "Consultation des entreprises, direction des travaux et suivi jusqu'à la réception définitive, aménagement intérieur compris." },
+];
+---
+
+<Base
+  title="Architecte maison bois et ossature bioclimatique Bordeaux - Denis Cartier Architecte"
+  description="Denis Cartier architecte DPLG à Bordeaux : maisons contemporaines et bioclimatiques en ossature bois, métal ou maçonnerie, bâtiments professionnels et centrales photovoltaïques en Gironde."
+  canonical="/"
+  image={hero}
+  schema={{
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: site.name,
+    url: `${site.url}/`,
+    inLanguage: 'fr-FR',
+  }}
+>
+  <section class="hero">
+    <div class="hero__media">
+      <Image
+        src={hero}
+        alt="Maison contemporaine à ossature bois conçue par Denis Cartier Architecte au Cap Ferret"
+        widths={[720, 1200, 1800, 2400]}
+        sizes="100vw"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </div>
+    <div class="wrap hero__body">
+      <p class="eyebrow">Architecte DPLG — Bordeaux, Bassin d'Arcachon, Gironde</p>
+      <h1>Architecte maison bois bioclimatique en Gironde</h1>
+      <p class="lede hero__lede">
+        Maisons contemporaines, bâtiments professionnels et centrales photovoltaïques.
+        Une architecture qui compose avec la lumière, le climat et le lieu.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--light" href="/maisons-d-architecte/">Voir les réalisations</a>
+        <a class="hero__tel" href={`tel:${site.phoneHref}`}>{site.phone}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap intro">
+      <div>
+        <p class="eyebrow">Le cabinet</p>
+        <h2>Concevoir des espaces contemporains, confortables et lumineux</h2>
+      </div>
+      <div class="prose">
+        <p>
+          <strong>Denis Cartier, architecte DPLG à Bordeaux</strong>, est spécialisé dans l'habitat
+          et particulièrement la <strong>maison écologique</strong> — en ossature bois, maçonnerie ou
+          structure métallique. Villas individuelles, habitat intermédiaire ou logement collectif :
+          chaque projet est pensé pour la lumière, les saisons et l'usage réel de ceux qui l'habitent.
+        </p>
+        <p>
+          Sa méthode de travail repose sur une <strong>virtualisation 3D hyper-réaliste</strong>,
+          gage d'une parfaite compréhension du projet et d'un dialogue clair avec le maître d'ouvrage
+          tout au long de la conception.
+        </p>
+        <p>
+          Particuliers, l'agence prend en charge l'intégralité de votre projet : plans d'avant-projet,
+          dossier de permis de construire, suivi de chantier jusqu'à la réception définitive, et
+          aménagement intérieur. Professionnels, elle établit l'étude de faisabilité, un chiffrage
+          précis grâce à ses entreprises partenaires, et des dossiers de présentation en 3D.
+        </p>
+        <p><a class="link-arrow" href="/savoir-faire/">Découvrir le savoir-faire bioclimatique</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="wrap">
+      <div class="domains">
+        {domainCards.map(({ key, img, count }) => {
+          const c = categories[key];
+          const meta = photo(img);
+          return (
+            <a class="dom reveal" href={`/${c.slug}/`}>
+              <div class="dom__media">
+                {meta && (
+                  <Image
+                    src={meta}
+                    alt={c.label}
+                    widths={[420, 700, 1000]}
+                    sizes="(max-width: 48rem) 92vw, 31vw"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
+              </div>
+              <div class="dom__body">
+                <h3>{c.label}</h3>
+                <p>{count} réalisation{count > 1 ? 's' : ''}</p>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <header class="head">
+        <div>
+          <p class="eyebrow">Réalisations</p>
+          <h2>Quelques projets livrés</h2>
+        </div>
+        <a class="link-arrow" href="/maisons-d-architecte/">Toutes les maisons</a>
+      </header>
+      <div class="grid grid--3">
+        {featured.map((r, i) => <ProjectCard entry={r} eager={i < 3} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="method">
+    <div class="wrap">
+      <header class="head">
+        <div>
+          <p class="eyebrow">Méthode</p>
+          <h2>De la première esquisse à la remise des clés</h2>
+        </div>
+      </header>
+      <ol class="steps">
+        {steps.map((s) => (
+          <li class="step reveal">
+            <span class="step__n">{s.n}</span>
+            <h3>{s.t}</h3>
+            <p>{s.d}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap sf">
+      <div class="sf__text">
+        <p class="eyebrow">Savoir-faire</p>
+        <h2>Le bioclimatique, détail par détail</h2>
+        <p class="lede">
+          Avant-toits profonds, galeries périphériques, patios, verrières ouvrantes, bardages à
+          claire-voie : des dispositifs simples et éprouvés qui règlent la lumière et la température
+          sans dépendre de la technique.
+        </p>
+        <a class="link-arrow" href="/savoir-faire/">Voir les principes</a>
+      </div>
+      <div class="sf__grid">
+        {savoirFaire.map((d) => {
+          const meta = photo(d.images[0].new);
+          return (
+            <a class="sf__card reveal" href={`/savoir-faire/#${d.slug}`}>
+              {meta && (
+                <Image src={meta} alt={d.images[0].alt} widths={[320, 520]} sizes="(max-width: 48rem) 44vw, 15rem" loading="lazy" decoding="async" />
+              )}
+              <span>{d.h1}</span>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight areas">
+    <div class="wrap">
+      <p class="eyebrow">Secteurs d'intervention</p>
+      <p class="areas__list">
+        Bordeaux · Bassin d'Arcachon · Cap Ferret · Lacanau · Andernos-les-Bains · Pessac ·
+        Mérignac · Gradignan · Biscarrosse · Gironde et Nouvelle-Aquitaine
+      </p>
+    </div>
+  </section>
+
+  <ContactCta />
+</Base>
+
+<style>
+  /* --- Hero --- */
+  .hero { position: relative; min-height: min(88svh, 46rem); display: grid; align-items: end; isolation: isolate; }
+  .hero__media { position: absolute; inset: 0; z-index: -1; }
+  .hero__media :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .hero__media::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(10,10,8,0.42) 0%, rgba(10,10,8,0.18) 38%, rgba(10,10,8,0.82) 100%);
+  }
+  .hero__body { padding-block: clamp(4rem, 12vw, 8rem) clamp(3rem, 7vw, 5.5rem); color: #fff; }
+  .hero h1 { color: #fff; max-width: 16ch; margin-bottom: 1.1rem; }
+  .hero .eyebrow { color: #e6d3a8; }
+  .hero__lede { color: rgba(255,255,255,0.9); max-width: 44ch; }
+  .hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem 2.5rem; margin-top: 2.5rem; }
+  .hero__tel {
+    color: #fff; text-decoration: none; font-family: var(--font-display); font-size: 1.6rem;
+    border-bottom: 1px solid rgba(255,255,255,0.35); padding-bottom: 0.2rem;
+  }
+  .hero__tel:hover { border-color: #fff; }
+
+  /* --- Intro --- */
+  .intro { display: grid; gap: clamp(1.5rem, 4vw, 4.5rem); grid-template-columns: 1fr 1.15fr; align-items: start; }
+  @media (max-width: 56rem) { .intro { grid-template-columns: 1fr; } }
+
+  /* --- Domaines --- */
+  .domains { display: grid; gap: clamp(1rem, 2vw, 1.75rem); grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 56rem) { .domains { grid-template-columns: 1fr; } }
+  .dom { position: relative; display: block; text-decoration: none; color: #fff; overflow: hidden; isolation: isolate; }
+  .dom__media { aspect-ratio: 4 / 5; }
+  @media (max-width: 56rem) { .dom__media { aspect-ratio: 16 / 10; } }
+  .dom__media :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+  .dom:hover .dom__media :global(img) { transform: scale(1.05); }
+  .dom__media::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(10,10,8,0.8) 100%);
+  }
+  .dom__body { position: absolute; inset: auto 0 0 0; padding: clamp(1.25rem, 3vw, 2rem); z-index: 1; }
+  .dom__body h3 { color: #fff; margin: 0 0 0.25rem; font-size: clamp(1.35rem, 1.1rem + 0.9vw, 1.9rem); }
+  .dom__body p { margin: 0; font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.75); }
+
+  /* --- En-têtes de section --- */
+  .head {
+    display: flex; flex-wrap: wrap; gap: 1.5rem 2rem;
+    align-items: end; justify-content: space-between; margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .head h2 { margin: 0; }
+
+  /* --- Méthode --- */
+  .method { background: var(--paper-2); padding-block: var(--sp); }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(1.75rem, 3vw, 2.5rem); grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+  .step { border-top: 1px solid var(--line); padding-top: 1.5rem; }
+  .step__n { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--brass); font-weight: 560; }
+  .step h3 { font-size: 1.28rem; margin: 0.9rem 0 0.5rem; }
+  .step p { font-size: 0.92rem; color: var(--ink-mute); margin: 0; line-height: 1.62; }
+
+  /* --- Savoir-faire --- */
+  .sf { display: grid; gap: clamp(2rem, 4vw, 4rem); grid-template-columns: 1fr 1.2fr; align-items: center; }
+  @media (max-width: 56rem) { .sf { grid-template-columns: 1fr; } }
+  .sf__text .lede { max-width: 36ch; }
+  .sf__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(0.75rem, 1.5vw, 1.25rem); }
+  .sf__card { text-decoration: none; color: inherit; display: grid; gap: 0.7rem; }
+  .sf__card :global(img) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; transition: opacity 0.4s var(--ease); }
+  .sf__card:hover :global(img) { opacity: 0.86; }
+  .sf__card span { font-size: 0.82rem; color: var(--ink-mute); line-height: 1.4; }
+
+  /* --- Secteurs --- */
+  .areas { border-top: 1px solid var(--line); }
+  .areas__list { font-family: var(--font-display); font-size: clamp(1.15rem, 0.95rem + 0.9vw, 1.7rem); line-height: 1.5; color: var(--ink-soft); margin: 0; max-width: 58rem; }
+</style>

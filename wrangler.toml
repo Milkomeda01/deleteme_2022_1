@@ -1,0 +1,18 @@
+name = "deniscartierarchitecte"
+compatibility_date = "2026-08-01"
+pages_build_output_dir = "dist"
+
+# Base D1 qui archive chaque demande du formulaire de contact.
+# Créer la base puis remplacer database_id :
+#   npx wrangler d1 create deniscartier-contact
+[[d1_databases]]
+binding = "CONTACT_DB"
+database_name = "deniscartier-contact"
+database_id = "REMPLACER_PAR_L_ID_RENVOYE_PAR_WRANGLER"
+
+# Destinataire et expéditeur des notifications. Ce ne sont pas des secrets.
+# La clé d'API d'envoi (RESEND_API_KEY) se définit à part :
+#   npx wrangler pages secret put RESEND_API_KEY
+[vars]
+CONTACT_TO = "deniscartier@mac.com"
+CONTACT_FROM = "Site Denis Cartier Architecte <site@deniscartierarchitecte.fr>"

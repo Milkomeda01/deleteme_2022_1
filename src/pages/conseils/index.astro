@@ -1,0 +1,61 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import ContactCta from '../../components/ContactCta.astro';
+import { conseils, excerpt } from '../../data/content';
+---
+
+<Base
+  title="Conseils d'architecte — ossature bois, permis de construire, photovoltaïque"
+  description="Les réponses de Denis Cartier, architecte DPLG à Bordeaux : avantages de l'ossature bois, réglementation des centrales photovoltaïques au sol, permis de construire et intégration paysagère en Gironde."
+  canonical="/conseils/"
+>
+  <section class="ph">
+    <div class="wrap">
+      <Breadcrumb items={[{ label: 'Conseils' }]} />
+      <h1>Conseils d'architecte</h1>
+      <p class="lede">
+        Ce qu'il faut savoir avant de lancer un projet en Gironde : matériaux, autorisations,
+        réglementation photovoltaïque et intégration paysagère.
+      </p>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="section">
+    <div class="wrap">
+      <ul class="arts">
+        {conseils.map((a) => (
+          <li class="reveal">
+            <a href={`/conseils/${a.slug}/`}>
+              <h2>{a.h1}</h2>
+              <p>{excerpt(a, 190)}</p>
+              <span class="link-arrow">Lire</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <ContactCta />
+</Base>
+
+<style>
+  .ph { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(2.5rem, 5vw, 4rem); }
+  .ph h1 { margin: 1.75rem 0 1.25rem; }
+  .ph .lede { max-width: 48ch; }
+
+  .arts { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  .arts li { border-top: 1px solid var(--line); }
+  .arts li:last-child { border-bottom: 1px solid var(--line); }
+  .arts a {
+    display: grid; gap: 0.75rem; text-decoration: none; color: inherit;
+    padding-block: clamp(1.75rem, 3vw, 2.75rem); justify-items: start;
+    transition: opacity 0.3s var(--ease);
+  }
+  .arts h2 { margin: 0; font-size: clamp(1.35rem, 1.1rem + 1.1vw, 2rem); max-width: 28ch; }
+  .arts p { margin: 0; color: var(--ink-mute); max-width: 62ch; font-size: 0.95rem; }
+  .arts a:hover h2 { color: var(--brass); }
+</style>

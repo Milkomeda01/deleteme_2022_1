@@ -1,0 +1,175 @@
+---
+// Le formulaire poste vers le Worker Cloudflare (voir /worker).
+// Sans JavaScript il fonctionne aussi : le Worker renvoie une page de confirmation.
+const endpoint = '/api/contact';
+---
+
+<form class="frm" method="post" action={endpoint} data-form novalidate>
+  <p class="frm__note">Les champs suivis d'un astérisque (*) sont obligatoires.</p>
+
+  <div class="frm__row">
+    <div class="field">
+      <input id="nom" name="nom" type="text" required autocomplete="family-name" placeholder=" " />
+      <label for="nom">Nom *</label>
+    </div>
+    <div class="field">
+      <input id="prenom" name="prenom" type="text" autocomplete="given-name" placeholder=" " />
+      <label for="prenom">Prénom</label>
+    </div>
+  </div>
+
+  <div class="frm__row">
+    <div class="field">
+      <input id="telephone" name="telephone" type="tel" required autocomplete="tel" placeholder=" " />
+      <label for="telephone">Téléphone *</label>
+    </div>
+    <div class="field">
+      <input id="email" name="email" type="email" required autocomplete="email" placeholder=" " />
+      <label for="email">E-mail *</label>
+    </div>
+  </div>
+
+  <div class="field field--select">
+    <select id="projet" name="projet">
+      <option value="">Sélectionner…</option>
+      <option>Construction d'une maison</option>
+      <option>Extension ou surélévation</option>
+      <option>Rénovation / réhabilitation</option>
+      <option>Bâtiment professionnel</option>
+      <option>Logements collectifs</option>
+      <option>Centrale photovoltaïque / agrivoltaïsme</option>
+      <option>Permis de construire seul</option>
+      <option>Autre</option>
+    </select>
+    <label for="projet">Type de projet</label>
+  </div>
+
+  <div class="field field--area">
+    <textarea id="message" name="message" rows="6" required placeholder=" "></textarea>
+    <label for="message">Votre projet en quelques lignes *</label>
+  </div>
+
+  <!-- Piège à robots : invisible et ignoré des lecteurs d'écran. -->
+  <div class="hp" aria-hidden="true">
+    <label for="societe">Ne pas remplir</label>
+    <input id="societe" name="societe" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <label class="consent">
+    <input type="checkbox" name="consentement" required />
+    <span>
+      J'accepte que les informations saisies soient utilisées par Denis Cartier Architecte pour
+      répondre à ma demande. Elles ne sont ni cédées ni revendues.{' '}
+      <a href="/politique-de-confidentialite/">En savoir plus</a>. *
+    </span>
+  </label>
+
+  <button class="btn" type="submit" data-submit>Envoyer ma demande</button>
+
+  <p class="frm__status" data-status role="status" aria-live="polite"></p>
+</form>
+
+<style>
+  .frm { display: grid; gap: 1.4rem; max-width: 42rem; }
+  .frm__note { font-size: 0.8rem; color: var(--ink-mute); margin: 0; }
+  .frm__row { display: grid; gap: 1.4rem; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 40rem) { .frm__row { grid-template-columns: 1fr; } }
+
+  .field { position: relative; }
+  .field input, .field textarea, .field select {
+    width: 100%; font: inherit; font-size: 1rem; color: var(--ink);
+    background: transparent; border: 0; border-bottom: 1px solid var(--line);
+    padding: 1.55rem 0 0.6rem; border-radius: 0;
+    transition: border-color 0.3s var(--ease);
+  }
+  .field select { padding-top: 1.5rem; }
+  .field textarea { resize: vertical; min-height: 8rem; }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    outline: none; border-bottom-color: var(--ink);
+  }
+  .field label {
+    position: absolute; left: 0; top: 1.4rem;
+    font-size: 0.95rem; color: var(--ink-mute); pointer-events: none;
+    transition: transform 0.25s var(--ease), font-size 0.25s var(--ease), color 0.25s var(--ease);
+    transform-origin: left top;
+  }
+  /* Le <select> affiche toujours quelque chose : son intitulé reste en position haute. */
+  .field--select label,
+  .field input:focus + label,
+  .field input:not(:placeholder-shown) + label,
+  .field textarea:focus + label,
+  .field textarea:not(:placeholder-shown) + label {
+    transform: translateY(-1.35rem);
+    font-size: 0.68rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--brass);
+  }
+  .field :global(input[aria-invalid='true']),
+  .field :global(textarea[aria-invalid='true']) { border-bottom-color: #a63c2c; }
+
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .consent { display: flex; gap: 0.8rem; font-size: 0.85rem; color: var(--ink-soft); line-height: 1.55; }
+  .consent input { margin-top: 0.25rem; accent-color: var(--brass); width: 1rem; height: 1rem; flex: none; }
+  .consent a { color: var(--brass); }
+
+  .frm .btn { justify-self: start; }
+  .frm__status { margin: 0; font-size: 0.9rem; min-height: 1.4em; }
+  .frm__status[data-tone='ok'] { color: #2f6b45; }
+  .frm__status[data-tone='err'] { color: #a63c2c; }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-form]');
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const button = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+
+    // Pré-remplissage depuis ?sujet=… (liens « Demander une étude » d'une page projet).
+    const sujet = new URLSearchParams(location.search).get('sujet');
+    const message = form.querySelector<HTMLTextAreaElement>('#message');
+    if (sujet && message && !message.value) {
+      message.value = `Bonjour, je souhaite des informations concernant : ${sujet}.\n\n`;
+    }
+
+    const invalid = (el: HTMLElement, bad: boolean) =>
+      bad ? el.setAttribute('aria-invalid', 'true') : el.removeAttribute('aria-invalid');
+
+    form.addEventListener('submit', async (e) => {
+      const fields = [...form.querySelectorAll<HTMLInputElement>('input,textarea,select')];
+      fields.forEach((f) => invalid(f, !f.checkValidity()));
+
+      if (!form.checkValidity()) {
+        e.preventDefault();
+        status.dataset.tone = 'err';
+        status.textContent = 'Merci de compléter les champs obligatoires.';
+        form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+        return;
+      }
+
+      e.preventDefault();
+      button.disabled = true;
+      status.dataset.tone = '';
+      status.textContent = 'Envoi en cours…';
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: new FormData(form),
+        });
+        const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Envoi impossible');
+
+        form.querySelectorAll<HTMLElement>('.frm__row,.field,.consent,[data-submit],.frm__note')
+          .forEach((el) => el.remove());
+        status.dataset.tone = 'ok';
+        status.textContent =
+          'Merci, votre demande est bien arrivée. Denis Cartier vous recontacte sous 48 h ouvrées.';
+      } catch (err) {
+        button.disabled = false;
+        status.dataset.tone = 'err';
+        status.innerHTML =
+          "L'envoi a échoué. Écrivez-nous à <a href=\"mailto:deniscartier@mac.com\">deniscartier@mac.com</a> ou appelez le <a href=\"tel:+33540250505\">05 40 25 05 05</a>.";
+      }
+    });
+  }
+</script>

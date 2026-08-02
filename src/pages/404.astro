@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import { categories } from '../data/site';
+---
+
+<Base
+  title="Page introuvable"
+  description="Cette page n'existe pas ou a été déplacée."
+  canonical="/404/"
+  noindex
+>
+  <section class="nf">
+    <div class="wrap">
+      <p class="eyebrow">Erreur 404</p>
+      <h1>Cette page n'existe plus</h1>
+      <p class="lede">
+        Le site a été refondu : certaines adresses ont changé. Voici les principales sections.
+      </p>
+      <ul>
+        <li><a class="link-arrow" href="/">Accueil</a></li>
+        {Object.values(categories).map((c) => (
+          <li><a class="link-arrow" href={`/${c.slug}/`}>{c.label}</a></li>
+        ))}
+        <li><a class="link-arrow" href="/contact/">Contact</a></li>
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf { padding-block: clamp(4rem, 12vw, 9rem); }
+  .nf h1 { margin-bottom: 1.25rem; }
+  .nf .lede { max-width: 44ch; }
+  .nf ul { list-style: none; margin: 2.5rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1.25rem 2.5rem; }
+</style>

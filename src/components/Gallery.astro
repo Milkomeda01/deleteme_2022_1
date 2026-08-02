@@ -1,0 +1,123 @@
+---
+import { Image } from 'astro:assets';
+import { photo, type Photo } from '../data/content';
+
+interface Props { images: Photo[]; }
+const { images } = Astro.props;
+const items = images.map((i) => ({ meta: photo(i.new), alt: i.alt })).filter((i) => i.meta);
+---
+
+{items.length > 0 && (
+  <div class="gal" data-gallery>
+    {items.map((it, i) => (
+      <figure class:list={['gal__item', { 'gal__item--wide': i % 5 === 0 }]}>
+        <button type="button" data-open={i} aria-label={`Agrandir : ${it.alt}`}>
+          <Image
+            src={it.meta!}
+            alt={it.alt}
+            widths={[560, 900, 1400]}
+            sizes="(max-width: 48rem) 94vw, (max-width: 72rem) 60vw, 46rem"
+            loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+          />
+        </button>
+      </figure>
+    ))}
+  </div>
+)}
+
+{items.length > 0 && (
+  <dialog class="lb" data-lightbox aria-label="Visionneuse de photos">
+    <button class="lb__close" data-close aria-label="Fermer">&times;</button>
+    <button class="lb__nav lb__nav--prev" data-prev aria-label="Photo précédente">&#8249;</button>
+    <button class="lb__nav lb__nav--next" data-next aria-label="Photo suivante">&#8250;</button>
+    <figure class="lb__fig">
+      <img data-lb-img alt="" />
+      <figcaption data-lb-cap></figcaption>
+    </figure>
+    <div class="lb__data" hidden>
+      {items.map((it) => (
+        <span data-src={it.meta!.src} data-w={it.meta!.width} data-h={it.meta!.height} data-alt={it.alt}></span>
+      ))}
+    </div>
+  </dialog>
+)}
+
+<style>
+  .gal {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: clamp(0.6rem, 1.4vw, 1.1rem);
+    margin-block: clamp(2rem, 4vw, 3.5rem);
+  }
+  .gal__item { margin: 0; }
+  .gal__item--wide { grid-column: span 2; }
+  @media (max-width: 40rem) { .gal__item--wide { grid-column: span 1; } }
+
+  .gal button {
+    display: block; width: 100%; padding: 0; border: 0; cursor: zoom-in;
+    background: var(--paper-2); overflow: hidden;
+  }
+  .gal :global(img) {
+    width: 100%; height: 100%; object-fit: cover; aspect-ratio: 3 / 2;
+    transition: transform 0.8s var(--ease), opacity 0.4s var(--ease);
+  }
+  .gal__item--wide :global(img) { aspect-ratio: 16 / 9; }
+  .gal button:hover :global(img) { transform: scale(1.035); }
+
+  .lb {
+    width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh;
+    border: 0; padding: 0; background: #0d0d0a; color: #f5f3ee;
+  }
+  .lb::backdrop { background: #0d0d0a; }
+  .lb__fig { margin: 0; height: 100%; display: grid; place-items: center; padding: clamp(1rem, 5vw, 3.5rem); gap: 1rem; }
+  .lb__fig img { max-width: 100%; max-height: 82dvh; width: auto; object-fit: contain; }
+  .lb__fig figcaption { font-size: 0.85rem; opacity: 0.72; text-align: center; max-width: 44rem; }
+
+  .lb__close, .lb__nav {
+    position: absolute; z-index: 2; background: none; border: 0; color: inherit; cursor: pointer;
+    line-height: 1; opacity: 0.65; transition: opacity 0.25s;
+  }
+  .lb__close:hover, .lb__nav:hover { opacity: 1; }
+  .lb__close { top: 0.5rem; right: 1rem; font-size: 2.6rem; padding: 0.4rem; }
+  .lb__nav { top: 50%; transform: translateY(-50%); font-size: 3.4rem; padding: 0.5rem 1rem; }
+  .lb__nav--prev { left: 0; }
+  .lb__nav--next { right: 0; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((gal) => {
+    const lb = gal.parentElement?.querySelector<HTMLDialogElement>('[data-lightbox]')
+      ?? document.querySelector<HTMLDialogElement>('[data-lightbox]');
+    if (!lb) return;
+    const data = [...lb.querySelectorAll<HTMLElement>('.lb__data span')];
+    const img = lb.querySelector<HTMLImageElement>('[data-lb-img]')!;
+    const cap = lb.querySelector<HTMLElement>('[data-lb-cap]')!;
+    let i = 0;
+
+    const show = (n: number) => {
+      i = (n + data.length) % data.length;
+      const d = data[i];
+      img.src = d.dataset.src!;
+      img.width = Number(d.dataset.w);
+      img.height = Number(d.dataset.h);
+      img.alt = d.dataset.alt!;
+      cap.textContent = d.dataset.alt!;
+    };
+
+    gal.querySelectorAll<HTMLButtonElement>('[data-open]').forEach((b) =>
+      b.addEventListener('click', () => {
+        show(Number(b.dataset.open));
+        lb.showModal();
+      })
+    );
+    lb.querySelector('[data-close]')?.addEventListener('click', () => lb.close());
+    lb.querySelector('[data-prev]')?.addEventListener('click', () => show(i - 1));
+    lb.querySelector('[data-next]')?.addEventListener('click', () => show(i + 1));
+    lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
+    lb.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); show(i + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); show(i - 1); }
+    });
+  });
+</script>

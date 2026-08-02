@@ -1,0 +1,94 @@
+---
+import { site, categories } from '../data/site';
+const year = new Date().getFullYear();
+const mapQuery = encodeURIComponent(
+  `${site.address.street}, ${site.address.postalCode} ${site.address.city}`
+);
+---
+
+<footer class="ft">
+  <div class="wrap ft__grid">
+    <div class="ft__brand">
+      <p class="ft__name">Denis Cartier</p>
+      <p class="ft__role">Architecte DPLG — Bordeaux</p>
+      <p class="ft__blurb">
+        Maisons contemporaines et bioclimatiques, bâtiments professionnels et centrales
+        photovoltaïques en Gironde, sur le Bassin d'Arcachon et en Nouvelle-Aquitaine.
+      </p>
+    </div>
+
+    <nav class="ft__col" aria-label="Prestations">
+      <h2>Prestations</h2>
+      <ul>
+        {Object.values(categories).map((c) => (
+          <li><a href={`/${c.slug}/`}>{c.label}</a></li>
+        ))}
+        <li><a href="/savoir-faire/">Savoir-faire bioclimatique</a></li>
+        <li><a href="/conseils/">Conseils</a></li>
+      </ul>
+    </nav>
+
+    <address class="ft__col">
+      <h2>Contact</h2>
+      <ul>
+        <li><a href={`tel:${site.phoneHref}`}>{site.phone}</a></li>
+        <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
+        <li>{site.address.street}<br />{site.address.postalCode} {site.address.city}</li>
+        <li>
+          <a href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`} target="_blank" rel="noopener">
+            Itinéraire ↗
+          </a>
+        </li>
+      </ul>
+    </address>
+  </div>
+
+  <div class="wrap ft__bar">
+    <p>© {year} Denis Cartier Architecte DPLG — Inscrit à l'Ordre des architectes</p>
+    <ul>
+      <li><a href="/mentions-legales/">Mentions légales</a></li>
+      <li><a href="/politique-de-confidentialite/">Confidentialité</a></li>
+      <li><a href="/plan-du-site/">Plan du site</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .ft {
+    background: var(--ink);
+    color: color-mix(in srgb, var(--paper) 76%, transparent);
+    padding-top: clamp(3.5rem, 7vw, 6rem);
+    font-size: 0.9rem;
+  }
+  .ft__grid {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4rem);
+    grid-template-columns: 1.6fr 1fr 1fr;
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+  }
+  @media (max-width: 52rem) { .ft__grid { grid-template-columns: 1fr; } }
+
+  .ft__name { font-family: var(--font-display); font-size: 1.9rem; color: var(--paper); margin: 0; line-height: 1.1; }
+  .ft__role { font-size: 0.62rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--brass-soft); margin: 0.4rem 0 1.4rem; }
+  .ft__blurb { max-width: 30rem; margin: 0; line-height: 1.7; }
+
+  .ft__col { font-style: normal; }
+  .ft__col h2 {
+    font-family: var(--font-sans); font-size: 0.66rem; font-weight: 560;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper);
+    margin: 0 0 1.2rem;
+  }
+  .ft__col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+  .ft a { text-decoration: none; transition: color 0.25s var(--ease); }
+  .ft a:hover { color: var(--paper); }
+
+  .ft__bar {
+    border-top: 1px solid color-mix(in srgb, var(--paper) 14%, transparent);
+    padding-block: 1.6rem;
+    display: flex; flex-wrap: wrap; gap: 1rem 2rem;
+    align-items: center; justify-content: space-between;
+    font-size: 0.78rem;
+  }
+  .ft__bar p { margin: 0; }
+  .ft__bar ul { display: flex; flex-wrap: wrap; gap: 1.5rem; list-style: none; margin: 0; padding: 0; }
+</style>

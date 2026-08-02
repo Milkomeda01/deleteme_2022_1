@@ -1,0 +1,126 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import Gallery from '../../components/Gallery.astro';
+import ContactCta from '../../components/ContactCta.astro';
+import { realisations, photo, cover, excerpt, byCategory, type Entry } from '../../data/content';
+import { categories } from '../../data/site';
+
+export function getStaticPaths() {
+  return realisations.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: Entry };
+const c = categories[entry.cat];
+const hero = photo(entry.images[0].new);
+const rest = entry.images.slice(1);
+
+const siblings = byCategory(entry.cat).filter((r) => r.slug !== entry.slug).slice(0, 3);
+
+const description =
+  entry.description?.trim() ||
+  excerpt(entry, 155) ||
+  `${entry.h1} — projet conçu par Denis Cartier, architecte DPLG à Bordeaux.`;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: entry.h1,
+  description,
+  url: new URL(`/realisations/${entry.slug}/`, Astro.site).href,
+  creator: { '@id': `${Astro.site}#organisation` },
+  ...(hero ? { image: new URL(hero.src, Astro.site).href } : {}),
+};
+---
+
+<Base title={entry.title} description={description} canonical={`/realisations/${entry.slug}/`} image={cover(entry)} schema={schema}>
+  <article>
+    <section class="ph">
+      <div class="wrap">
+        <Breadcrumb items={[{ href: `/${c.slug}/`, label: c.label }, { label: entry.h1 }]} />
+        <p class="eyebrow ph__cat">{c.label}</p>
+        <h1>{entry.h1}</h1>
+      </div>
+    </section>
+
+    {hero && (
+      <div class="hero">
+        <Image
+          src={hero}
+          alt={entry.images[0].alt || entry.h1}
+          widths={[760, 1200, 1800, 2200]}
+          sizes="(max-width: 78rem) 100vw, 78rem"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+    )}
+
+    <section class="section--tight">
+      <div class="wrap">
+        <div class="body prose" set:html={entry.bodyHtml} />
+      </div>
+    </section>
+
+    {rest.length > 0 && (
+      <section class="wrap">
+        <h2 class="sr-only">Photographies du projet</h2>
+        <Gallery images={rest} />
+      </section>
+    )}
+  </article>
+
+  {siblings.length > 0 && (
+    <section class="section--tight sib">
+      <div class="wrap">
+        <header class="sib__head">
+          <p class="eyebrow">Autres projets</p>
+          <a class="link-arrow" href={`/${c.slug}/`}>Retour à {c.label.toLowerCase()}</a>
+        </header>
+        <ul>
+          {siblings.map((s) => {
+            const m = s.images.length ? photo(s.images[0].new) : undefined;
+            return (
+              <li>
+                <a href={`/realisations/${s.slug}/`}>
+                  {m && <Image src={m} alt={s.images[0].alt} widths={[340, 560]} sizes="(max-width: 48rem) 90vw, 20rem" loading="lazy" decoding="async" />}
+                  <span>{s.h1}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <ContactCta
+    title="Un projet du même ordre ?"
+    text="Décrivez-nous votre terrain et votre programme : nous évaluons gratuitement la faisabilité avant tout engagement."
+    subject={entry.h1}
+  />
+</Base>
+
+<style>
+  .ph { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(1.75rem, 4vw, 3rem); }
+  .ph__cat { margin: 1.75rem 0 0.9rem; }
+  .ph h1 { margin: 0; max-width: 22ch; font-size: clamp(1.9rem, 1.25rem + 2.7vw, 3.4rem); }
+
+  .hero { max-width: var(--w); margin-inline: auto; padding-inline: var(--gut); }
+  .hero :global(img) { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  @media (max-width: 40rem) { .hero :global(img) { aspect-ratio: 4 / 3; } }
+
+  .body :global(p) { font-size: clamp(1.02rem, 0.99rem + 0.2vw, 1.12rem); }
+  .body :global(strong) { color: var(--ink); }
+
+  .sib { border-top: 1px solid var(--line); }
+  .sib__head { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+  .sib__head .eyebrow { margin: 0; }
+  .sib ul { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(1.25rem, 2.5vw, 2rem); grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
+  .sib a { text-decoration: none; color: inherit; display: grid; gap: 0.85rem; }
+  .sib :global(img) { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; transition: opacity 0.4s var(--ease); }
+  .sib a:hover :global(img) { opacity: 0.85; }
+  .sib span { font-size: 0.92rem; line-height: 1.45; }
+</style>
