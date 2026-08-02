@@ -49,19 +49,17 @@ const first = pattern.replace('%', '000');
     object-fit: contain;
   }
 
+  /* Le sujet est panoramique : le texte se place au-dessus plutôt qu'à côté. */
+  .seq__sticky { align-content: start; justify-items: center; }
   .seq__overlay {
     position: relative; z-index: 1;
-    max-width: min(30rem, 78vw);
-    margin-left: clamp(1.25rem, 6vw, 6rem);
-    justify-self: start;
-    text-shadow: 0 1px 24px color-mix(in srgb, var(--paper-2) 85%, transparent);
+    max-width: min(38rem, 84vw);
+    text-align: center;
+    padding: clamp(3.5rem, 9vh, 6.5rem) 1.25rem 0;
   }
-  .seq__overlay h2 { margin: 0 0 0.75rem; }
-  .seq__text { margin: 0; color: var(--ink-soft); font-size: 1.02rem; }
-  @media (max-width: 52rem) {
-    .seq__sticky { align-content: end; }
-    .seq__overlay { justify-self: center; margin: 0 1.25rem 4rem; text-align: center; }
-  }
+  .seq__overlay h2 { margin: 0 0 0.6rem; }
+  .seq__text { margin: 0; color: var(--ink-soft); font-size: 1rem; }
+  .seq__overlay .eyebrow { margin-bottom: 0.9rem; }
 
   .seq__hint {
     position: absolute; bottom: 1.6rem; left: 50%; transform: translateX(-50%);
@@ -84,6 +82,7 @@ const first = pattern.replace('%', '000');
   document.querySelectorAll<HTMLElement>('[data-seq]').forEach((section) => {
     const canvas = section.querySelector<HTMLCanvasElement>('[data-canvas]')!;
     const hint = section.querySelector<HTMLElement>('[data-hint]');
+    const overlay = section.querySelector<HTMLElement>('.seq__overlay');
     const ctx = canvas.getContext('2d', { alpha: false })!;
     const pattern = section.dataset.pattern!;
     const total = Number(section.dataset.frames);
@@ -108,13 +107,17 @@ const first = pattern.replace('%', '000');
       ctx.fillStyle = getComputedStyle(section).backgroundColor || '#f2efe9';
       ctx.fillRect(0, 0, w, h);
 
-      // « contain » : l'objet reste entier quelle que soit la fenêtre.
-      const scale = Math.min(w / img.naturalWidth, h / img.naturalHeight);
+      // Le texte occupe le haut : on réserve sa hauteur réelle — la deviner en
+      // proportion laissait un grand vide sous le sujet sur mobile.
+      const reserve = ((overlay?.offsetHeight ?? 0) + 16) * dpr;
+      const zoneH = Math.max(h - reserve, h * 0.35);
+      // Un rendu panoramique est vite minuscule sur un écran en portrait :
+      // on lui laisse toute la largeur disponible.
+      const marge = innerWidth >= 832 ? 0.9 : 0.98;
+      const scale = Math.min((w * marge) / img.naturalWidth, zoneH / img.naturalHeight);
       const dw = img.naturalWidth * scale;
       const dh = img.naturalHeight * scale;
-      // Sur grand écran le texte occupe la gauche : on pousse le volume à droite.
-      const shift = innerWidth >= 832 ? w * 0.17 : 0;
-      ctx.drawImage(img, (w - dw) / 2 + shift, (h - dh) / 2, dw, dh);
+      ctx.drawImage(img, (w - dw) / 2, h - zoneH + (zoneH - dh) / 2, dw, dh);
     };
 
     const frameFromScroll = () => {

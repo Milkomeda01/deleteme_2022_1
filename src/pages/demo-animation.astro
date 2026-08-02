@@ -3,14 +3,14 @@ import Base from '../layouts/Base.astro';
 import ScrollSequence from '../components/ScrollSequence.astro';
 
 // Page de démonstration, volontairement exclue de l'indexation et de la
-// navigation : elle sert à valider le principe avant de produire les vrais
-// rendus 3D.
+// navigation : elle sert à arbitrer le principe avant de l'intégrer au site.
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const IMAGES = 19;
 ---
 
 <Base
   title="Démonstration — rotation au défilement"
-  description="Prototype d'animation : une maison pivote au fil du défilement, selon la technique de séquence d'images."
+  description="Une maison de l'agence pivote au fil du défilement : séquence d'images issue du modèle 3D de Denis Cartier Architecte."
   canonical="/demo-animation/"
   noindex
 >
@@ -21,15 +21,16 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       <div class="prose">
         <p>
           Le principe est celui des sites de Rolex ou d'Apple : l'objet n'est pas
-          modélisé en direct dans le navigateur. Il est <strong>photographié ou rendu
-          image par image</strong> sur un tour complet, et le défilement de la page sert
-          simplement de curseur dans cette séquence. C'est fluide, ça marche sur
-          n'importe quel téléphone, et ça ne demande aucune bibliothèque 3D.
+          modélisé en direct dans le navigateur. Il est <strong>rendu image par image</strong>{' '}
+          depuis le modèle 3D, et le défilement de la page sert simplement de curseur
+          dans cette séquence. C'est fluide, ça fonctionne sur n'importe quel téléphone,
+          et ça ne demande aucune bibliothèque 3D.
         </p>
         <p>
-          Le volume blanc ci-dessous est une <strong>maquette d'étude générée pour la
-          démonstration</strong> — 48 images, 247 Ko au total. En production, ces 48 images
-          seraient un rendu du vrai projet, exporté depuis le modèle 3D de l'agence.
+          Ce que vous voyez ci-dessous est <strong>un vrai projet de l'agence</strong> :
+          {IMAGES} images exportées du modèle, recadrées sur le bâtiment et servies sur
+          fond transparent, pour un total d'environ 280 Ko — moins qu'une seule
+          photographie de la page d'accueil.
         </p>
       </div>
     </div>
@@ -37,29 +38,40 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
   <ScrollSequence
     pattern={`${base}/orbite/frame-%.webp`}
-    frames={48}
-    eyebrow="Maison sur pilotis"
-    title="Un tour complet du volume"
-    text="Débord de toiture, socle porté, annexe basse : la volumétrie se lit d'un seul geste, sans plan ni coupe."
+    frames={IMAGES}
+    eyebrow="Rendu 3D — Denis Cartier Architecte"
+    title="Un demi-tour autour de la maison"
+    text="Toiture débordante portée par des poteaux métalliques, terrasse abritée dans le prolongement du séjour, larges baies coulissantes : le rapport entre le volume bâti et l'espace couvert se comprend d'un seul geste."
+    scroll="340svh"
   />
 
   <section class="apres">
     <div class="wrap prose">
-      <h2>Ce qu'il faut pour la vraie version</h2>
+      <h2>Ce qu'il faut retenir</h2>
       <p>
-        Denis Cartier modélise déjà ses projets en 3D hyper-réaliste — c'est même
-        l'argument central de sa méthode. La production des images est donc un simple
-        export, pas un nouveau travail :
+        La séquence couvre environ <strong>un demi-tour</strong>, de la façade d'entrée
+        à la façade terrasse. C'est déjà très lisible : on comprend la volumétrie mieux
+        qu'avec un plan et une coupe.
       </p>
-      <ol>
-        <li>Placer la caméra sur un cercle autour de la maison, à hauteur d'œil.</li>
-        <li>Rendre <strong>48 à 72 images</strong> régulièrement réparties sur 360°.</li>
-        <li>Garder cadrage, éclairage et arrière-plan strictement identiques.</li>
-        <li>Les nommer <code>frame-000</code> à <code>frame-047</code> et les déposer ici.</li>
-      </ol>
       <p>
-        Comptez 2 à 4 Mo pour une séquence photoréaliste en pleine largeur — à charger
-        une seule fois, et uniquement sur la page qui la porte.
+        Deux réglages sont possibles selon le rendu attendu :
+      </p>
+      <ul>
+        <li>
+          <strong>Plus de fluidité</strong> — {IMAGES} images sur 180°, cela fait environ
+          10° d'écart entre deux vues. C'est correct, mais on perçoit encore les paliers
+          si l'on défile vite. Doubler le nombre d'images rendrait le mouvement soyeux,
+          pour environ 550 Ko.
+        </li>
+        <li>
+          <strong>Un tour complet</strong> — la séquence s'arrête sur la façade terrasse.
+          Prolonger jusqu'à 360° permettrait de boucler et de revenir au point de départ.
+        </li>
+      </ul>
+      <p>
+        Dans les deux cas, le procédé est le même : il suffit de relancer le rendu avec
+        un pas de caméra plus fin ou une course plus longue. Les fichiers se déposent
+        ensuite tels quels, la page s'adapte au nombre d'images.
       </p>
       <p><a class="link-arrow" href="/">Retour à l'accueil</a></p>
     </div>
@@ -67,13 +79,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 </Base>
 
 <style>
-  .intro { padding-block: clamp(3rem, 7vw, 5rem) clamp(2.5rem, 5vw, 4rem); }
+  .intro { padding-block: clamp(3rem, 7vw, 5rem) clamp(2rem, 4vw, 3rem); }
   .intro h1 { margin: 1.5rem 0 1.75rem; max-width: 18ch; }
   .intro .prose { max-width: 44rem; }
   .apres { padding-block: clamp(3.5rem, 7vw, 6rem); }
-  .apres ol { color: var(--ink-soft); padding-left: 1.3rem; }
-  .apres li { margin-bottom: 0.6em; }
-  .apres code {
-    font-size: 0.88em; background: var(--paper-2); padding: 0.1em 0.4em; border-radius: 2px;
-  }
+  .apres ul { color: var(--ink-soft); padding-left: 1.3rem; }
+  .apres li { margin-bottom: 0.8em; }
 </style>
