@@ -36,6 +36,17 @@ for (const file of files.filter((f) => f.endsWith('.html'))) {
     (m) => `${m}\n    <meta name="robots" content="noindex,nofollow" />`
   );
 
+  // La canonique est calculée pour le domaine de production : sur l'aperçu
+  // elle perdrait le sous-dossier. On la réaligne sur l'URL réellement servie.
+  html = html.replace(
+    /(<link rel="canonical" href="https?:\/\/[^/"]+)(\/[^"]*)?"/,
+    (m, origin, path = '/') =>
+      `${origin}${path.startsWith(BASE + '/') ? path : BASE + path}"`
+  );
+
+  // Aucun sitemap n'est produit pour l'aperçu : ce lien pointerait dans le vide.
+  html = html.replace(/<link rel="sitemap"[^>]*>\s*/g, '');
+
   writeFileSync(file, html);
   touched++;
 }
