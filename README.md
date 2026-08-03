@@ -19,6 +19,22 @@ npm run preview  # sert le build
 npm run check    # vérification TypeScript
 ```
 
+## Aperçu en ligne
+
+Un site de test public est déployé à chaque poussée sur `main` :
+**https://milkomeda01.github.io/deleteme_2022_1/**
+
+Il est en `noindex` : Google ne l'indexera pas, et il ne fera donc jamais
+doublon avec le vrai domaine. Ne retirez pas cette balise.
+
+Le déploiement ne part **que depuis `main`** — l'environnement `github-pages`
+n'autorise pas les autres branches. Travailler sur une branche est donc sans
+effet sur l'aperçu tant qu'elle n'est pas fusionnée.
+
+```bash
+npm run build:preview   # reproduit localement le build d'aperçu
+```
+
 ## Structure
 
 ```
