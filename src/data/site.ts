@@ -2,8 +2,8 @@ export const site = {
   name: 'Denis Cartier Architecte',
   legalName: 'Denis Cartier — Architecte DPLG',
   url: 'https://www.deniscartierarchitecte.fr',
-  // Numéro affiché en en-tête de l'ancien site. (L'ancien texte de pied de page
-  // mentionnait un 05 40 25 05 39 — à confirmer avant mise en ligne.)
+  // Numéro confirmé par le client (l'ancien site en affichait un second,
+  // 05 40 25 05 39, qui n'est plus en service).
   phone: '05 40 25 05 05',
   phoneHref: '+33540250505',
   email: 'deniscartier@mac.com',

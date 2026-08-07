@@ -41,8 +41,7 @@ body{padding-bottom:var(--apercu-h,2.8rem)}
 }
 </style>
 <div id="apercu-bandeau">
-  <span><b>Aperçu</b> — version de test, non référencée.</span>
-  <a href="${BASE}/demo-animation/">Voir la démo d'animation au défilement &rarr;</a>
+  <span><b>Aperçu</b> — version de test, non référencée par les moteurs de recherche.</span>
 </div>
 <script>
 (function () {

@@ -140,24 +140,47 @@ const first = pattern.replace('%', '000');
       requestAnimationFrame(update);
     };
 
-    // Charge la première image tout de suite, le reste ensuite.
-    for (let i = 0; i < total; i++) {
-      const img = new Image();
-      img.decoding = 'async';
-      img.src = src(i);
-      img.onload = () => {
-        loaded++;
-        if (i === 0 || loaded === total) update();
-      };
-      images.push(img);
-    }
+    /**
+     * La séquence pèse quelques centaines de kilo-octets : sur une page
+     * d'accueil, la charger d'emblée la ralentirait pour tout le monde, y
+     * compris ceux qui n'iront jamais jusqu'à cette section. On attend donc
+     * qu'elle approche de l'écran.
+     */
+    let demarre = false;
+    const charger = () => {
+      if (demarre) return;
+      demarre = true;
 
-    if (reduced) {
-      images[0].onload = () => draw(0);
-      return;
-    }
+      for (let i = 0; i < total; i++) {
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = src(i);
+        img.onload = () => {
+          loaded++;
+          if (i === 0 || loaded === total) update();
+        };
+        images.push(img);
+      }
 
-    addEventListener('scroll', onScroll, { passive: true });
-    addEventListener('resize', () => { current = -1; update(); }, { passive: true });
+      if (reduced) return;
+      addEventListener('scroll', onScroll, { passive: true });
+      addEventListener('resize', () => { current = -1; update(); }, { passive: true });
+    };
+
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            io.disconnect();
+            charger();
+          }
+        },
+        // Une hauteur d'écran d'avance : les images sont prêtes à l'arrivée.
+        { rootMargin: '100% 0px' }
+      );
+      io.observe(section);
+    } else {
+      charger();
+    }
   });
 </script>

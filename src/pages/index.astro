@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import ContactCta from '../components/ContactCta.astro';
+import ScrollSequence from '../components/ScrollSequence.astro';
 import { categories, site } from '../data/site';
 import { realisations, details, photo, byCategory } from '../data/content';
 
@@ -149,6 +150,15 @@ const steps = [
       </div>
     </div>
   </section>
+
+  <ScrollSequence
+    pattern={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/orbite/frame-%.webp`}
+    frames={19}
+    eyebrow="Projet Panoramique — rendu 3D"
+    title="Voir la maison avant de la construire"
+    text="Faites défiler : la maison pivote. Toiture débordante, terrasse abritée, larges baies — la volumétrie se lit d'un seul geste, sans plan ni coupe."
+    scroll="340svh"
+  />
 
   <section class="method">
     <div class="wrap">

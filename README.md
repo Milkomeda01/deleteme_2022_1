@@ -45,8 +45,10 @@ src/
   assets/photos/         121 photographies d'origine, optimisées au build
   components/            en-tête, pied de page, galerie, formulaire…
   pages/                 les gabarits
+public/orbite/           19 images du rendu 3D « Panoramique » (animation d'accueil)
 functions/api/contact.ts Worker Cloudflare : validation, archivage D1, envoi e-mail
 scripts/build-redirects.mjs  génère public/_redirects avant chaque build
+scripts/tga-to-frames.mjs    convertit un export 3D en TGA vers la séquence WebP
 public/_redirects        GÉNÉRÉ — ne pas modifier à la main
 ```
 
@@ -168,9 +170,6 @@ base mais aucun e-mail ne part : configurez-la avant la bascule du domaine.
 
 ## Points à compléter avant la mise en ligne
 
-- [ ] **Numéro de téléphone** — l'ancien site en affichait deux : `05 40 25 05 05`
-      en en-tête (retenu ici) et `05 40 25 05 39` dans un texte de bas de page.
-      À confirmer dans `src/data/site.ts`.
 - [ ] **Mentions légales** — compléter le numéro d'inscription à l'Ordre des
       architectes, l'assureur et le numéro de police, la TVA intracommunautaire
       (`src/pages/mentions-legales.astro`).
