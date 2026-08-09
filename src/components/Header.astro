@@ -62,7 +62,9 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     position: sticky;
     top: 0;
     z-index: 100;
-    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    /* Assez opaque pour que les grands titres ne transparaissent pas en
+       passant dessous, assez léger pour garder l'effet de verre. */
+    background: color-mix(in srgb, var(--paper) 95%, transparent);
     backdrop-filter: saturate(1.4) blur(14px);
     border-bottom: 1px solid transparent;
     transition: border-color 0.3s var(--ease), background 0.3s var(--ease);

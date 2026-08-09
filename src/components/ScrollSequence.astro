@@ -185,6 +185,16 @@ const first = pattern.replace('%', '000');
       if (demarre) return;
       demarre = true;
 
+      // Placée haut dans la page, la séquence entrerait en concurrence avec la
+      // grande photo d'accueil. On la laisse passer d'abord.
+      if (document.readyState !== 'complete') {
+        addEventListener('load', lancer, { once: true });
+      } else {
+        lancer();
+      }
+    };
+
+    function lancer() {
       for (let i = 0; i < total; i++) {
         const img = new Image();
         img.decoding = 'async';
@@ -199,7 +209,7 @@ const first = pattern.replace('%', '000');
       if (reduced) return;
       addEventListener('scroll', onScroll, { passive: true });
       addEventListener('resize', () => { current = -1; update(); }, { passive: true });
-    };
+    }
 
     if ('IntersectionObserver' in window) {
       const io = new IntersectionObserver(
