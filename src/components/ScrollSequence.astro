@@ -22,68 +22,65 @@ const first = pattern.replace('%', '000');
 ---
 
 <section class="seq" data-seq data-pattern={pattern} data-frames={frames} style={`--scroll:${scroll}`}>
-  <div class="seq__sticky">
-    <canvas class="seq__canvas" data-canvas aria-hidden="true"></canvas>
-
-    <!-- Repli sans JavaScript et pour « animations réduites » : une image fixe. -->
-    <noscript><img src={first} alt={title} class="seq__static" /></noscript>
-
-    <div class="seq__overlay">
-      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
-      <h2>{title}</h2>
-      {text && <p class="seq__text">{text}</p>}
-    </div>
-
+  <!-- L'intitulé défile normalement : il ne doit pas repousser la maison vers
+       le bas du panneau, qui la voulait au centre de l'écran. -->
+  <div class="wrap seq__intro">
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h2>{title}</h2>
+    {text && <p class="seq__text">{text}</p>}
     <div class="seq__hint" data-hint aria-hidden="true">
       <span>Faites défiler pour faire tourner la maison</span>
       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"
         ><path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg
       >
     </div>
+  </div>
 
-    <!-- Position dans la rotation : rend le mécanisme lisible d'un coup d'œil. -->
-    <div class="seq__progress" aria-hidden="true"><i data-progress></i></div>
+  <div class="seq__track" data-track>
+    <div class="seq__pin">
+      <canvas class="seq__canvas" data-canvas aria-hidden="true"></canvas>
+
+      <!-- Repli sans JavaScript et pour « animations réduites » : une image fixe. -->
+      <noscript><img src={first} alt={title} class="seq__static" /></noscript>
+
+      <!-- Position dans la rotation : rend le mécanisme lisible d'un coup d'œil. -->
+      <div class="seq__progress" aria-hidden="true"><i data-progress></i></div>
+    </div>
   </div>
 </section>
 
 <style>
-  /* Le panneau épinglé est volontairement plus court que l'écran : à pleine
-     hauteur, la rotation masquait tout le reste et donnait l'impression d'un
-     défilement bloqué. Ici, le fond de page reste visible au-dessus et
-     au-dessous — on voit que la page continue. */
+  /* Le panneau épinglé est court : la maison tourne au centre de l'écran et
+     la page reste visible autour. L'épinglage est bref, pour que la section
+     suivante entre dans le champ pendant la fin de la rotation. */
   .seq {
-    --panneau: 74svh;
-    height: var(--scroll); position: relative; background: transparent;
+    --panneau: 52svh;
+    padding-top: clamp(3rem, 7vw, 5.5rem);
+    background: transparent;
   }
-  .seq__sticky {
+  @media (max-width: 52rem) { .seq { --panneau: 56svh; } }
+
+  .seq__intro { text-align: center; max-width: min(44rem, 90vw); }
+  .seq__intro h2 { margin: 0 0 0.6rem; }
+  .seq__text { margin: 0 auto; color: var(--ink-soft); font-size: 1rem; max-width: 38rem; }
+  .seq__intro .eyebrow { margin-bottom: 0.9rem; }
+
+  .seq__track { height: var(--scroll); position: relative; }
+  .seq__pin {
     position: sticky;
     top: calc((100svh - var(--panneau)) / 2);
     height: var(--panneau);
-    background: var(--paper-2);
-    display: grid; align-content: start; justify-items: center;
     overflow: hidden;
   }
-  @media (max-width: 52rem) { .seq { --panneau: 78svh; } }
 
   .seq__canvas, .seq__static {
     position: absolute; inset: 0; width: 100%; height: 100%;
     object-fit: contain;
   }
 
-  /* Le sujet est panoramique : le texte se place au-dessus plutôt qu'à côté. */
-  .seq__overlay {
-    position: relative; z-index: 1;
-    max-width: min(38rem, 84vw);
-    text-align: center;
-    padding: clamp(2.25rem, 6vh, 4rem) 1.25rem 0;
-  }
-  .seq__overlay h2 { margin: 0 0 0.6rem; }
-  .seq__text { margin: 0; color: var(--ink-soft); font-size: 1rem; }
-  .seq__overlay .eyebrow { margin-bottom: 0.9rem; }
-
   .seq__hint {
-    position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.5rem; margin-top: 1.6rem;
     font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase;
     color: var(--ink-mute); transition: opacity 0.5s var(--ease);
   }
@@ -98,7 +95,7 @@ const first = pattern.replace('%', '000');
 
   .seq__progress {
     position: absolute; inset: auto 0 0 0; height: 2px;
-    background: color-mix(in srgb, var(--ink) 8%, transparent);
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
   }
   .seq__progress i {
     display: block; height: 100%; width: 0;
@@ -106,9 +103,9 @@ const first = pattern.replace('%', '000');
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .seq { height: auto; }
-    .seq__sticky { position: static; height: auto; padding-block: clamp(2rem, 5vw, 3.5rem); }
-    .seq__canvas { position: static; height: min(60svh, 30rem); }
+    .seq__track { height: auto; }
+    .seq__pin { position: static; height: auto; }
+    .seq__canvas { position: static; height: min(52svh, 26rem); margin-top: 2rem; }
     .seq__hint, .seq__progress { display: none; }
   }
 </style>
@@ -119,8 +116,8 @@ const first = pattern.replace('%', '000');
   document.querySelectorAll<HTMLElement>('[data-seq]').forEach((section) => {
     const canvas = section.querySelector<HTMLCanvasElement>('[data-canvas]')!;
     const hint = section.querySelector<HTMLElement>('[data-hint]');
-    const overlay = section.querySelector<HTMLElement>('.seq__overlay');
-    const panneau = section.querySelector<HTMLElement>('.seq__sticky')!;
+    const track = section.querySelector<HTMLElement>('[data-track]')!;
+    const panneau = section.querySelector<HTMLElement>('.seq__pin')!;
     const progress = section.querySelector<HTMLElement>('[data-progress]');
     const ctx = canvas.getContext('2d', { alpha: false })!;
     const pattern = section.dataset.pattern!;
@@ -143,26 +140,20 @@ const first = pattern.replace('%', '000');
       const h = canvas.clientHeight * dpr;
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
 
-      // La section est transparente : c'est le panneau qui porte le fond.
-      ctx.fillStyle = getComputedStyle(panneau).backgroundColor || '#f2efe9';
+      // Le panneau est transparent : la maison se détache sur le fond de page.
+      ctx.fillStyle = getComputedStyle(document.body).backgroundColor || '#fbfaf7';
       ctx.fillRect(0, 0, w, h);
 
-      // Le texte occupe le haut : on réserve sa hauteur réelle — la deviner en
-      // proportion laissait un grand vide sous le sujet sur mobile.
-      const reserve = ((overlay?.offsetHeight ?? 0) + 16) * dpr;
-      const zoneH = Math.max(h - reserve, h * 0.35);
-      // Un rendu panoramique est vite minuscule sur un écran en portrait :
-      // on lui laisse toute la largeur disponible.
-      const marge = innerWidth >= 832 ? 0.9 : 0.98;
-      const scale = Math.min((w * marge) / img.naturalWidth, zoneH / img.naturalHeight);
+      // L'intitulé est hors du panneau : la maison est centrée, sans décalage.
+      const marge = innerWidth >= 832 ? 0.88 : 0.98;
+      const scale = Math.min((w * marge) / img.naturalWidth, (h * 0.9) / img.naturalHeight);
       const dw = img.naturalWidth * scale;
       const dh = img.naturalHeight * scale;
-      ctx.drawImage(img, (w - dw) / 2, h - zoneH + (zoneH - dh) / 2, dw, dh);
+      ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
     };
 
     const frameFromScroll = () => {
-      const rect = section.getBoundingClientRect();
-      // La rotation se joue sur la course d'épinglage du panneau, pas de l'écran.
+      const rect = track.getBoundingClientRect();
       const span = rect.height - panneau.offsetHeight;
       const debut = (innerHeight - panneau.offsetHeight) / 2;
       const p = span > 0 ? Math.min(Math.max((debut - rect.top) / span, 0), 1) : 0;
@@ -221,7 +212,7 @@ const first = pattern.replace('%', '000');
         // Une hauteur d'écran d'avance : les images sont prêtes à l'arrivée.
         { rootMargin: '100% 0px' }
       );
-      io.observe(section);
+      io.observe(track);
     } else {
       charger();
     }

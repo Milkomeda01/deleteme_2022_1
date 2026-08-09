@@ -130,6 +130,11 @@ strong{font-weight:560;color:var(--ink)}
 .skip{position:absolute;left:.75rem;top:-4rem;z-index:200;background:var(--ink);color:var(--paper);padding:.75rem 1.25rem;border-radius:var(--r);transition:top .2s}
 .skip:focus{top:.75rem}
 
+/* Une section qui suit une animation épinglée se rapproche : pendant la
+   rotation, seule une bande d'environ 200 px est visible sous le panneau, et
+   ce resserrement y fait entrer le titre suivant plus tôt. */
+.seq + .section, .seq + .method { padding-top: clamp(1.5rem, 3.5vw, 2.75rem) }
+
 /* Apparition douce au scroll */
 .reveal{opacity:0;transform:translateY(1.4rem);transition:opacity .8s var(--ease),transform .8s var(--ease)}
 .reveal.is-in{opacity:1;transform:none}
