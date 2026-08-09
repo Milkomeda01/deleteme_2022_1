@@ -34,45 +34,82 @@ const first = pattern.replace('%', '000');
       {text && <p class="seq__text">{text}</p>}
     </div>
 
-    <p class="seq__hint" data-hint aria-hidden="true">Faites défiler</p>
+    <div class="seq__hint" data-hint aria-hidden="true">
+      <span>Faites défiler pour faire tourner la maison</span>
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"
+        ><path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg
+      >
+    </div>
+
+    <!-- Position dans la rotation : rend le mécanisme lisible d'un coup d'œil. -->
+    <div class="seq__progress" aria-hidden="true"><i data-progress></i></div>
   </div>
 </section>
 
 <style>
-  .seq { height: var(--scroll); position: relative; background: var(--paper-2); }
-  .seq__sticky {
-    position: sticky; top: 0; height: 100svh;
-    display: grid; place-items: center; overflow: hidden;
+  /* Le panneau épinglé est volontairement plus court que l'écran : à pleine
+     hauteur, la rotation masquait tout le reste et donnait l'impression d'un
+     défilement bloqué. Ici, le fond de page reste visible au-dessus et
+     au-dessous — on voit que la page continue. */
+  .seq {
+    --panneau: 74svh;
+    height: var(--scroll); position: relative; background: transparent;
   }
+  .seq__sticky {
+    position: sticky;
+    top: calc((100svh - var(--panneau)) / 2);
+    height: var(--panneau);
+    background: var(--paper-2);
+    display: grid; align-content: start; justify-items: center;
+    overflow: hidden;
+  }
+  @media (max-width: 52rem) { .seq { --panneau: 78svh; } }
+
   .seq__canvas, .seq__static {
     position: absolute; inset: 0; width: 100%; height: 100%;
     object-fit: contain;
   }
 
   /* Le sujet est panoramique : le texte se place au-dessus plutôt qu'à côté. */
-  .seq__sticky { align-content: start; justify-items: center; }
   .seq__overlay {
     position: relative; z-index: 1;
     max-width: min(38rem, 84vw);
     text-align: center;
-    padding: clamp(3.5rem, 9vh, 6.5rem) 1.25rem 0;
+    padding: clamp(2.25rem, 6vh, 4rem) 1.25rem 0;
   }
   .seq__overlay h2 { margin: 0 0 0.6rem; }
   .seq__text { margin: 0; color: var(--ink-soft); font-size: 1rem; }
   .seq__overlay .eyebrow { margin-bottom: 0.9rem; }
 
   .seq__hint {
-    position: absolute; bottom: 1.6rem; left: 50%; transform: translateX(-50%);
-    margin: 0; font-size: 0.66rem; letter-spacing: 0.2em; text-transform: uppercase;
+    position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;
+    font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase;
     color: var(--ink-mute); transition: opacity 0.5s var(--ease);
   }
+  .seq__hint svg { animation: seq-bas 2.2s var(--ease) infinite; }
   .seq__hint[data-off] { opacity: 0; }
+  @keyframes seq-bas {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(3px); }
+  }
+  @media (prefers-reduced-motion: reduce) { .seq__hint svg { animation: none; } }
+  @media (max-width: 34rem) { .seq__hint span { display: none; } }
+
+  .seq__progress {
+    position: absolute; inset: auto 0 0 0; height: 2px;
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+  }
+  .seq__progress i {
+    display: block; height: 100%; width: 0;
+    background: var(--brass); transition: width 0.12s linear;
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .seq { height: auto; }
-    .seq__sticky { position: static; height: auto; padding-block: clamp(3rem, 8vw, 6rem); }
+    .seq__sticky { position: static; height: auto; padding-block: clamp(2rem, 5vw, 3.5rem); }
     .seq__canvas { position: static; height: min(60svh, 30rem); }
-    .seq__hint { display: none; }
+    .seq__hint, .seq__progress { display: none; }
   }
 </style>
 
@@ -83,6 +120,8 @@ const first = pattern.replace('%', '000');
     const canvas = section.querySelector<HTMLCanvasElement>('[data-canvas]')!;
     const hint = section.querySelector<HTMLElement>('[data-hint]');
     const overlay = section.querySelector<HTMLElement>('.seq__overlay');
+    const panneau = section.querySelector<HTMLElement>('.seq__sticky')!;
+    const progress = section.querySelector<HTMLElement>('[data-progress]');
     const ctx = canvas.getContext('2d', { alpha: false })!;
     const pattern = section.dataset.pattern!;
     const total = Number(section.dataset.frames);
@@ -104,7 +143,8 @@ const first = pattern.replace('%', '000');
       const h = canvas.clientHeight * dpr;
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
 
-      ctx.fillStyle = getComputedStyle(section).backgroundColor || '#f2efe9';
+      // La section est transparente : c'est le panneau qui porte le fond.
+      ctx.fillStyle = getComputedStyle(panneau).backgroundColor || '#f2efe9';
       ctx.fillRect(0, 0, w, h);
 
       // Le texte occupe le haut : on réserve sa hauteur réelle — la deviner en
@@ -122,9 +162,12 @@ const first = pattern.replace('%', '000');
 
     const frameFromScroll = () => {
       const rect = section.getBoundingClientRect();
-      const span = rect.height - innerHeight;
-      const p = span > 0 ? Math.min(Math.max(-rect.top / span, 0), 1) : 0;
-      hint?.toggleAttribute('data-off', p > 0.04);
+      // La rotation se joue sur la course d'épinglage du panneau, pas de l'écran.
+      const span = rect.height - panneau.offsetHeight;
+      const debut = (innerHeight - panneau.offsetHeight) / 2;
+      const p = span > 0 ? Math.min(Math.max((debut - rect.top) / span, 0), 1) : 0;
+      hint?.toggleAttribute('data-off', p > 0.12);
+      if (progress) progress.style.width = `${(p * 100).toFixed(1)}%`;
       return Math.min(total - 1, Math.round(p * (total - 1)));
     };
 
