@@ -116,6 +116,24 @@ les expertises, repasse tout en noir sur blanc et supprime le châssis. Le
 bouton « Version imprimable » ne fait qu'appeler `window.print()` : il n'y a
 donc jamais de PDF périmé à côté du site.
 
+## Version en un seul fichier
+
+Le site multi-fichiers reste la version de référence : c'est elle qu'on édite.
+Pour en tirer une copie autonome — un seul HTML, polices comprises, qui
+s'ouvre même en `file://` et s'envoie par e-mail :
+
+```bash
+node scripts/bundle.mjs               # → dist/index.html (~390 Ko)
+node scripts/bundle.mjs --fragment    # sans <html>/<head>/<body>, pour un hôte
+node scripts/bundle.mjs --title "Nom" --out ailleurs.html
+```
+
+Le script inline le CSS, encode les polices en `data:` URI et concatène les
+modules JavaScript en retirant leurs `import` / `export` — les modules ES
+exigent un serveur, or ce fichier doit pouvoir s'en passer.
+
+`dist/` est régénérable : ne l'éditez jamais à la main.
+
 ## Mise en ligne
 
 Site statique : le dossier `cv/` se publie tel quel.
