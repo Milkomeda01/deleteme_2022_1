@@ -17,7 +17,7 @@ body { background: #fff !important; color: #000 !important; font-size: 10.5pt; l
 .loader, .cursor, .grain, .topbar, .menu, .progress,
 .hero__canvas, .hero__veil, .hero__scroll, .marquee,
 .btn, .footer__top, .track__hint, .skip-link,
-.job--end, .demo, .axis__rail { display: none !important; }
+.job--end, .axis__rail { display: none !important; }
 
 /* Aucune animation ne doit laisser un élément invisible sur le papier. */
 [data-reveal], .split__i, .word { opacity: 1 !important; translate: none !important; }

@@ -19,7 +19,7 @@ import { initGL } from './modules/gl.js';
 import { initCursor, initMagnetic } from './modules/cursor.js';
 import { initNav } from './modules/nav.js';
 import { initManifesto, initCounters, initTrack, initSkills, initMarquee } from './modules/sections.js';
-import { initClock, initYear, initCopy, initPrint, initDemoNotice } from './modules/misc.js';
+import { initClock, initYear, initCopy, initPrint } from './modules/misc.js';
 
 const safe = (name, fn) => {
   try { return fn(); }
@@ -38,7 +38,6 @@ safe('year', () => initYear());
 safe('copy', () => initCopy());
 safe('print', () => initPrint());
 safe('skills', () => initSkills());
-safe('demo', () => initDemoNotice());
 
 initLoader($('[data-loader]')).then(() => {
   window.scrollTo(0, 0);

@@ -55,8 +55,3 @@ export function initPrint() {
   $$('[data-print]').forEach((btn) => btn.addEventListener('click', () => window.print()));
 }
 
-/** Fermeture du bandeau de démonstration. À supprimer avec le bandeau. */
-export function initDemoNotice() {
-  const el = $('[data-demo]');
-  el?.querySelector('[data-demo-close]')?.addEventListener('click', () => el.remove());
-}

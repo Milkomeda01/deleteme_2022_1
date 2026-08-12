@@ -361,8 +361,8 @@ section { position: relative; }
 .edu__shell { display: grid; gap: clamp(2.5rem, 6vw, 5rem); grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
 .edu__list { display: grid; gap: 1.4rem; margin-top: 2rem; }
 .edu__list li { display: grid; grid-template-columns: 4.5rem 1fr; gap: 1rem; padding-bottom: 1.4rem; border-bottom: 1px solid var(--line-soft); }
-.edu__year { font-family: var(--font-mono); font-size: var(--t-xs); color: var(--accent); letter-spacing: 0.1em; padding-top: 0.35em; }
-.edu__list h3 { font-family: var(--font-display); font-size: var(--t-lg); font-weight: 400; letter-spacing: -0.01em; }
+.edu__year { font-family: var(--font-mono); font-size: var(--t-xs); line-height: 1.5; color: var(--accent); letter-spacing: 0.1em; padding-top: 0.35em; }
+.edu__list h3 { font-family: var(--font-display); font-size: var(--t-lg); font-weight: 400; line-height: 1.14; letter-spacing: -0.01em; margin-bottom: 0.35rem; }
 .edu__list p { font-size: var(--t-sm); color: var(--fg-dim); }
 
 .edu__pills { display: grid; gap: 0.8rem; margin-top: 2rem; }
@@ -376,6 +376,10 @@ section { position: relative; }
   transition: border-color var(--dur-fast), color var(--dur-fast), translate var(--dur-fast) var(--ease-back);
 }
 .edu__tools li:hover { color: var(--fg); border-color: var(--accent); translate: 0 -2px; }
+
+/* Les centres d'intérêt en une phrase plutôt qu'en liste : douze ans de
+   badminton en compétition en disent plus long qu'une puce « rigoureux ». */
+.edu__note { margin-top: 1rem; max-width: 44ch; font-size: var(--t-sm); line-height: 1.6; color: var(--fg-dim); }
 
 /* ══ 08 · CONTACT ═══════════════════════════════════════════════════════ */
 
