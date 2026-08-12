@@ -1,0 +1,76 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   IMPRESSION — le CV reste un document. Un recruteur qui fait Ctrl+P doit
+   obtenir deux pages propres en noir sur blanc, pas une capture du site.
+   C'est aussi ce qui remplace le « PDF à télécharger » : une seule source.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@page { margin: 16mm 14mm; }
+
+:root {
+  --bg: #fff; --fg: #000; --fg-dim: #444;
+  --line: #bbb; --line-soft: #ddd; --accent: #000;
+}
+
+body { background: #fff !important; color: #000 !important; font-size: 10.5pt; line-height: 1.4; }
+
+/* Tout le châssis interactif disparaît. */
+.loader, .cursor, .grain, .topbar, .menu, .progress,
+.hero__canvas, .hero__veil, .hero__scroll, .marquee,
+.btn, .footer__top, .track__hint, .skip-link,
+.job--end, .demo { display: none !important; }
+
+/* Aucune animation ne doit laisser un élément invisible sur le papier. */
+[data-reveal], .split__i, .word { opacity: 1 !important; translate: none !important; }
+
+/* Le papier n'a ni fond sombre ni accent doré : tout repasse en noir, et
+   seules les étiquettes gardent un gris pour tenir la hiérarchie. */
+#contenu *, .footer * { color: #111 !important; }
+.label, .job__years, .case__num, .skill__num, .edu__year,
+.stat__label, .job__org, .job__tags li, .edu__tools li { color: #555 !important; }
+
+section { break-inside: auto; padding-block: 0 8mm !important; min-height: 0 !important; }
+.shell { width: 100% !important; }
+
+/* Le héros devient l'en-tête du document. */
+.hero { min-height: 0 !important; display: block; padding: 0 0 6mm !important; }
+.hero__title { font-size: 26pt !important; line-height: 1 !important; }
+.hero__line { display: inline !important; }
+.hero__line--alt { color: #000 !important; background: none !important; -webkit-text-fill-color: #000; animation: none !important; }
+.hero__lede { font-size: 10.5pt !important; max-width: none; margin-top: 3mm; }
+.hero__foot { border: 0; padding: 0; }
+.hero__clock, .hero__meta { display: none !important; }
+
+.manifesto__text { font-size: 13pt !important; max-width: none !important; }
+.facts { gap: 3mm 8mm; }
+
+.stats__grid { border: 0; background: none; gap: 4mm; grid-template-columns: repeat(4, 1fr); }
+.stat { padding: 0; background: none; }
+.stat__value { font-size: 20pt !important; }
+.stat__label { font-size: 8.5pt; }
+
+/* La piste horizontale se remet à plat, une expérience par bloc. */
+.track { height: auto !important; }
+.track__pin { position: static !important; height: auto !important; overflow: visible; padding: 0 !important; }
+.track__rail { display: block !important; width: auto !important; padding: 0 !important; transform: none !important; }
+.track__head { padding: 0 !important; }
+.job { width: auto !important; border: 0; border-bottom: 0.4pt solid #ccc; border-radius: 0; padding: 0 0 4mm; margin-bottom: 4mm; background: none; break-inside: avoid; }
+.job__role { font-size: 13pt !important; }
+
+/* Les expertises repliées doivent s'imprimer dépliées. */
+.skill__body { grid-template-rows: 1fr !important; }
+.skill__body > p { opacity: 1 !important; padding: 0 0 3mm !important; }
+.skill__head { padding: 2mm 0 !important; }
+.skill__head::before { display: none; }   /* le fond de survol n'a rien à faire là */
+.skill__name { font-size: 12pt !important; }
+
+.case { padding: 0 0 4mm; background: none; break-inside: avoid; }
+.work__list { display: block; border: 0; background: none; }
+
+.contact { text-align: left; }
+.contact .shell { justify-items: start; }
+.contact__title { font-size: 16pt !important; }
+.contact__mail { font-size: 12pt !important; }
+
+/* Les liens perdent leur cible à l'impression : on l'écrit en toutes lettres. */
+.contact__links a::after, .menu__social a::after { content: none !important; }
+.footer__colophon { display: none; }

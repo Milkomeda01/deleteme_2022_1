@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="fr" class="no-js">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     TOUT LE CONTENU ÉDITABLE EST DANS CE FICHIER.
+     Cherchez les blocs « ✎ » : ce sont les seuls endroits à modifier.
+     Le HTML est complet et lisible sans JavaScript — le JS n'ajoute que
+     le mouvement. Un recruteur avec un navigateur bridé voit tout.
+     ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- ✎ MÉTA — titre, description, URL de production, image de partage -->
+<title>Emile Cartier — Product &amp; Growth Marketing</title>
+<meta name="description" content="CV interactif d'Emile Cartier, product & growth marketing. Parcours, expertises, résultats chiffrés et contact." />
+<link rel="canonical" href="https://emilecartier.fr/" />
+<meta name="theme-color" content="#06070B" />
+<meta name="color-scheme" content="dark" />
+
+<meta property="og:type" content="profile" />
+<meta property="og:locale" content="fr_FR" />
+<meta property="og:title" content="Emile Cartier — Product & Growth Marketing" />
+<meta property="og:description" content="CV interactif : parcours, expertises, résultats chiffrés." />
+<meta property="og:url" content="https://emilecartier.fr/" />
+<meta property="og:image" content="https://emilecartier.fr/assets/img/og.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2306070B'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' fill='%23D8B26A' text-anchor='middle'%3EE%3C/text%3E%3C/svg%3E" />
+
+<!-- Les deux polices du premier écran sont préchargées : sans ça, le nom
+     apparaît en Times pendant 200 ms au moment le plus visible du site. -->
+<link rel="preload" href="./assets/fonts/cormorant-300.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="./assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+<link rel="stylesheet" href="./assets/css/tokens.css" />
+<link rel="stylesheet" href="./assets/css/base.css" />
+<link rel="stylesheet" href="./assets/css/sections.css" />
+<link rel="stylesheet" href="./assets/css/print.css" media="print" />
+
+<script>
+  // Retiré avant le premier rendu : le CSS peut ainsi masquer les éléments
+  // à animer uniquement quand le JS est là pour les révéler ensuite.
+  document.documentElement.classList.remove('no-js');
+  document.documentElement.classList.add('js');
+</script>
+
+<!-- ✎ DONNÉES STRUCTURÉES — lues par Google et par certains ATS -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Emile Cartier",
+  "jobTitle": "Product & Growth Marketing",
+  "email": "mailto:cartier.emile@gmail.com",
+  "address": { "@type": "PostalAddress", "addressLocality": "Bordeaux", "addressCountry": "FR" },
+  "url": "https://emilecartier.fr/"
+}
+</script>
+</head>
+
+<body>
+
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<!-- ⚠️ SUPPRIMEZ CE BLOC (et sa règle .demo dans base.css) DÈS QUE LE VRAI
+     CONTENU EST EN PLACE. Il existe pour qu'un contenu de démonstration ne
+     soit jamais pris pour un parcours réel s'il est mis en ligne par erreur. -->
+<p class="demo" data-demo>
+  Contenu de démonstration — chiffres, entreprises et dates à remplacer.
+  <button type="button" data-demo-close aria-label="Masquer cet avertissement">✕</button>
+</p>
+
+<!-- ══ ÉCRAN DE CHARGEMENT ══════════════════════════════════════════════ -->
+<div class="loader" data-loader role="status" aria-live="polite">
+  <div class="loader__inner">
+    <p class="loader__name">Emile&nbsp;Cartier</p>
+    <div class="loader__bar"><span data-loader-bar></span></div>
+    <p class="loader__count"><span data-loader-count>0</span><span class="loader__pct">%</span></p>
+  </div>
+  <span class="visually-hidden">Chargement du site</span>
+</div>
+
+<!-- ══ CURSEUR PERSONNALISÉ (masqué au tactile et au clavier) ═══════════ -->
+<div class="cursor" data-cursor aria-hidden="true">
+  <div class="cursor__dot"></div>
+  <div class="cursor__ring"><span class="cursor__label" data-cursor-label></span></div>
+</div>
+
+<!-- Grain animé : casse les aplats sombres, qui bandent sur les écrans 8 bit -->
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ══ EN-TÊTE ══════════════════════════════════════════════════════════ -->
+<header class="topbar" data-topbar>
+  <a class="topbar__mark" href="#intro" data-scroll-to>
+    <span class="topbar__initials">EC</span>
+    <span class="topbar__status" data-status><i></i>Disponible</span>
+  </a>
+
+  <nav class="topbar__nav" aria-label="Sections">
+    <ol>
+      <li><a href="#manifeste" data-scroll-to data-nav-link>Profil</a></li>
+      <li><a href="#parcours" data-scroll-to data-nav-link>Parcours</a></li>
+      <li><a href="#expertises" data-scroll-to data-nav-link>Expertises</a></li>
+      <li><a href="#projets" data-scroll-to data-nav-link>Projets</a></li>
+      <li><a href="#contact" data-scroll-to data-nav-link>Contact</a></li>
+    </ol>
+  </nav>
+
+  <button class="topbar__burger" data-menu-toggle aria-expanded="false" aria-controls="menu">
+    <span class="topbar__burger-label" data-burger-label>Menu</span>
+    <span class="topbar__burger-icon" aria-hidden="true"><i></i><i></i></span>
+  </button>
+</header>
+
+<!-- ══ MENU PLEIN ÉCRAN ═════════════════════════════════════════════════ -->
+<div class="menu" id="menu" data-menu hidden>
+  <nav class="menu__nav" aria-label="Navigation principale">
+    <ol>
+      <li><a href="#intro"      data-scroll-to><span class="menu__i">01</span><span class="menu__t">Accueil</span></a></li>
+      <li><a href="#manifeste"  data-scroll-to><span class="menu__i">02</span><span class="menu__t">Profil</span></a></li>
+      <li><a href="#chiffres"   data-scroll-to><span class="menu__i">03</span><span class="menu__t">Résultats</span></a></li>
+      <li><a href="#parcours"   data-scroll-to><span class="menu__i">04</span><span class="menu__t">Parcours</span></a></li>
+      <li><a href="#expertises" data-scroll-to><span class="menu__i">05</span><span class="menu__t">Expertises</span></a></li>
+      <li><a href="#projets"    data-scroll-to><span class="menu__i">06</span><span class="menu__t">Projets</span></a></li>
+      <li><a href="#formation"  data-scroll-to><span class="menu__i">07</span><span class="menu__t">Formation</span></a></li>
+      <li><a href="#contact"    data-scroll-to><span class="menu__i">08</span><span class="menu__t">Contact</span></a></li>
+    </ol>
+  </nav>
+  <div class="menu__aside">
+    <div>
+      <p class="label">Contact direct</p>
+      <a class="menu__mail" href="mailto:cartier.emile@gmail.com">cartier.emile@gmail.com</a>
+    </div>
+    <ul class="menu__social">
+      <li><a href="#" rel="me noopener">LinkedIn</a></li>
+      <li><a href="#" rel="me noopener">X / Twitter</a></li>
+      <li><a href="#" rel="me noopener">GitHub</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Fil de progression + numéro de section, collés au bord droit -->
+<div class="progress" aria-hidden="true">
+  <span class="progress__index" data-progress-index>01</span>
+  <span class="progress__rail"><i data-progress-bar></i></span>
+  <span class="progress__total">08</span>
+</div>
+
+<main id="contenu">
+
+<!-- ══ 01 · ACCUEIL ═════════════════════════════════════════════════════ -->
+<section class="hero" id="intro" data-section data-theme="dark" data-index="01">
+  <canvas class="hero__canvas" data-gl aria-hidden="true"></canvas>
+  <div class="hero__veil" aria-hidden="true"></div>
+
+  <div class="hero__grid">
+    <p class="hero__eyebrow" data-reveal>
+      <!-- ✎ --><span>Product &amp; Growth Marketing</span><span class="dot"></span><span>Bordeaux&nbsp;— France</span>
+    </p>
+
+    <h1 class="hero__title">
+      <!-- ✎ Le nom. Chaque mot est animé séparément. -->
+      <span class="hero__line" data-split="chars">Emile</span>
+      <span class="hero__line hero__line--alt" data-split="chars">Cartier</span>
+    </h1>
+
+    <p class="hero__lede" data-reveal data-reveal-delay="200">
+      <!-- ✎ Une phrase. La seule que 80&nbsp;% des visiteurs liront. -->
+      Je transforme des produits confidentiels en produits qu'on s'arrache&nbsp;:
+      acquisition, activation, rétention — et les chiffres qui vont avec.
+    </p>
+
+    <div class="hero__actions" data-reveal data-reveal-delay="320">
+      <a class="btn btn--solid" href="#parcours" data-scroll-to data-magnetic>
+        <span>Voir le parcours</span>
+      </a>
+      <button class="btn btn--ghost" data-print data-magnetic>
+        <span>Version imprimable</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="hero__foot">
+    <div class="hero__clock">
+      <span class="label">Bordeaux</span>
+      <span class="hero__time" data-clock>--:--:--</span>
+    </div>
+    <div class="hero__scroll" aria-hidden="true">
+      <span>Défiler</span>
+      <span class="hero__scroll-rail"><i></i></span>
+    </div>
+    <!-- Rien à droite : l'indicateur de progression, fixe, occupe ce coin. -->
+    <p class="hero__meta" aria-hidden="true"></p>
+  </div>
+</section>
+
+<!-- ══ 02 · PROFIL ══════════════════════════════════════════════════════ -->
+<section class="manifesto" id="manifeste" data-section data-theme="dark" data-index="02">
+  <div class="shell">
+    <p class="label" data-reveal>02 — Profil</p>
+    <!-- ✎ Le pitch. Découpé mot par mot, révélé au défilement. -->
+    <h2 class="manifesto__text" data-split="words" data-split-scrub>
+      Sept ans à faire pousser des produits&nbsp;: du premier utilisateur payant
+      au million d'euros de revenu récurrent. Je travaille à l'intersection du
+      produit, de la donnée et du récit — parce qu'un bon produit mal raconté
+      reste un secret bien gardé.
+    </h2>
+
+    <div class="manifesto__aside" data-reveal>
+      <dl class="facts">
+        <!-- ✎ Les faits qu'un recruteur cherche en dix secondes -->
+        <div><dt>Poste visé</dt><dd>Head of Growth / Product Marketing Lead</dd></div>
+        <div><dt>Disponibilité</dt><dd>Sous 2 mois — CDI ou mission</dd></div>
+        <div><dt>Localisation</dt><dd>Bordeaux · Paris · Full remote</dd></div>
+        <div><dt>Secteurs</dt><dd>SaaS B2B · Marketplace · Fintech</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 03 · RÉSULTATS ═══════════════════════════════════════════════════ -->
+<section class="stats" id="chiffres" data-section data-theme="dark" data-index="03">
+  <div class="shell">
+    <p class="label" data-reveal>03 — Ce que ça a donné</p>
+    <ul class="stats__grid">
+      <!-- ✎ Quatre chiffres, pas plus. data-to = valeur finale du compteur. -->
+      <li class="stat" data-reveal>
+        <span class="stat__value"><span data-count data-to="1.4" data-decimals="1">0</span><em>M€</em></span>
+        <p class="stat__label">de revenu récurrent annuel construit en 3 ans</p>
+      </li>
+      <li class="stat" data-reveal data-reveal-delay="120">
+        <span class="stat__value"><span data-count data-to="212">0</span><em>%</em></span>
+        <p class="stat__label">de croissance de l'acquisition organique</p>
+      </li>
+      <li class="stat" data-reveal data-reveal-delay="240">
+        <span class="stat__value"><span data-count data-to="34">0</span><em>pts</em></span>
+        <p class="stat__label">de rétention à 6 mois gagnés sur la cohorte 2024</p>
+      </li>
+      <li class="stat" data-reveal data-reveal-delay="360">
+        <span class="stat__value"><span data-count data-to="9">0</span></span>
+        <p class="stat__label">personnes encadrées, marketing et produit réunis</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ 04 · PARCOURS (défilement horizontal épinglé) ════════════════════ -->
+<section class="track" id="parcours" data-section data-theme="dark" data-index="04" data-track>
+  <div class="track__pin">
+    <header class="track__head">
+      <p class="label">04 — Parcours</p>
+      <p class="track__hint" aria-hidden="true">Défiler pour avancer dans le temps</p>
+    </header>
+
+    <ol class="track__rail" data-track-rail>
+      <!-- ✎ UN POSTE = UN <li>. Ajoutez-en, la piste s'allonge toute seule. -->
+      <li class="job">
+        <p class="job__years"><span>2023</span><i></i><span>Aujourd'hui</span></p>
+        <h3 class="job__role">Lead Growth</h3>
+        <p class="job__org">[Nom de l'entreprise] — Bordeaux</p>
+        <ul class="job__points">
+          <li>Refonte complète du tunnel d'acquisition : coût par client divisé par&nbsp;2,4.</li>
+          <li>Mise en place du cycle de vie e-mail et in-app, +34&nbsp;pts de rétention à 6 mois.</li>
+          <li>Encadrement d'une équipe de 5, budget média de 900&nbsp;k€ par an.</li>
+        </ul>
+        <ul class="job__tags"><li>Acquisition</li><li>Lifecycle</li><li>Management</li></ul>
+      </li>
+
+      <li class="job">
+        <p class="job__years"><span>2021</span><i></i><span>2023</span></p>
+        <h3 class="job__role">Product Marketing Manager</h3>
+        <p class="job__org">[Nom de l'entreprise] — Paris</p>
+        <ul class="job__points">
+          <li>Positionnement et lancement de 3 offres, dont celle qui pèse aujourd'hui 40&nbsp;% du revenu.</li>
+          <li>Création du programme de recherche client : 120 entretiens en 18 mois.</li>
+          <li>Passage du discours produit d'un ton technique à un ton bénéfice, +18&nbsp;% de conversion essai→payant.</li>
+        </ul>
+        <ul class="job__tags"><li>Positionnement</li><li>Go-to-market</li><li>Recherche</li></ul>
+      </li>
+
+      <li class="job">
+        <p class="job__years"><span>2019</span><i></i><span>2021</span></p>
+        <h3 class="job__role">Chargé d'acquisition</h3>
+        <p class="job__org">[Nom de l'entreprise] — Bordeaux</p>
+        <ul class="job__points">
+          <li>Pilotage SEA et paid social, de 40&nbsp;k€ à 500&nbsp;k€ de budget annuel.</li>
+          <li>Construction du socle analytique : suivi serveur, attribution, tableaux de bord.</li>
+          <li>Programme de contenu SEO : 0 → 60&nbsp;k visites organiques mensuelles.</li>
+        </ul>
+        <ul class="job__tags"><li>SEA / Paid</li><li>SEO</li><li>Analytics</li></ul>
+      </li>
+
+      <li class="job">
+        <p class="job__years"><span>2018</span><i></i><span>2019</span></p>
+        <h3 class="job__role">Alternance — Marketing digital</h3>
+        <p class="job__org">[Nom de l'entreprise] — Bordeaux</p>
+        <ul class="job__points">
+          <li>Animation des réseaux et de la newsletter, base portée de 4&nbsp;k à 21&nbsp;k abonnés.</li>
+          <li>Premiers tests d'acquisition payante et mise en place du suivi de performance.</li>
+        </ul>
+        <ul class="job__tags"><li>Contenu</li><li>CRM</li></ul>
+      </li>
+
+      <li class="job job--end">
+        <p class="job__years"><span>Et&nbsp;ensuite</span></p>
+        <h3 class="job__role">La suite s'écrit&nbsp;avec vous.</h3>
+        <p class="job__org">Parlons-en.</p>
+        <a class="btn btn--solid" href="#contact" data-scroll-to data-magnetic><span>Me contacter</span></a>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ══ 05 · EXPERTISES ══════════════════════════════════════════════════ -->
+<section class="skills" id="expertises" data-section data-theme="dark" data-index="05">
+  <div class="shell">
+    <p class="label" data-reveal>05 — Expertises</p>
+    <ul class="skills__list" data-skills>
+      <!-- ✎ Chaque ligne se déplie au survol / au clic. -->
+      <!-- La première ligne est ouverte au chargement : sans ça, rien
+           n'indique que ces lignes se déplient. -->
+      <li class="skill is-open" data-skill>
+        <button class="skill__head" aria-expanded="true">
+          <span class="skill__num">01</span>
+          <span class="skill__name">Acquisition &amp; performance</span>
+          <span class="skill__meta">7 ans</span>
+        </button>
+        <div class="skill__body"><p>SEA, paid social, affiliation, SEO technique et éditorial. Modèles d'attribution, arbitrage budgétaire, tests d'incrémentalité. Google&nbsp;Ads, Meta, LinkedIn, GA4, Looker&nbsp;Studio.</p></div>
+      </li>
+      <li class="skill" data-skill>
+        <button class="skill__head" aria-expanded="false">
+          <span class="skill__num">02</span>
+          <span class="skill__name">Product marketing</span>
+          <span class="skill__meta">5 ans</span>
+        </button>
+        <div class="skill__body"><p>Positionnement, segmentation, discours de marque et de produit. Lancements coordonnés produit / vente / support. Recherche client qualitative et quantitative.</p></div>
+      </li>
+      <li class="skill" data-skill>
+        <button class="skill__head" aria-expanded="false">
+          <span class="skill__num">03</span>
+          <span class="skill__name">Cycle de vie &amp; rétention</span>
+          <span class="skill__meta">5 ans</span>
+        </button>
+        <div class="skill__body"><p>Onboarding, activation, réengagement, prévention du départ. Scénarios e-mail et in-app, scoring, analyse de cohortes. Braze, Customer.io, Brevo.</p></div>
+      </li>
+      <li class="skill" data-skill>
+        <button class="skill__head" aria-expanded="false">
+          <span class="skill__num">04</span>
+          <span class="skill__name">Donnée &amp; expérimentation</span>
+          <span class="skill__meta">6 ans</span>
+        </button>
+        <div class="skill__body"><p>SQL, modélisation d'entonnoir, tests A/B et lecture honnête des résultats. Mise en place du plan de mesure et de la gouvernance de la donnée. BigQuery, dbt, Amplitude.</p></div>
+      </li>
+      <li class="skill" data-skill>
+        <button class="skill__head" aria-expanded="false">
+          <span class="skill__num">05</span>
+          <span class="skill__name">Management &amp; organisation</span>
+          <span class="skill__meta">3 ans</span>
+        </button>
+        <div class="skill__body"><p>Recrutement, cadrage d'objectifs, rituels d'équipe. Construction d'un service marketing de 2 à 9 personnes, en lien direct avec le produit et la vente.</p></div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ 06 · PROJETS (inversion en clair) ════════════════════════════════ -->
+<section class="work" id="projets" data-section data-theme="light" data-index="06">
+  <div class="shell">
+    <p class="label" data-reveal>06 — Trois projets, trois problèmes</p>
+    <ol class="work__list">
+      <!-- ✎ Un projet = contexte, action, résultat. Le format que lisent les RH. -->
+      <li class="case" data-reveal>
+        <p class="case__num">01</p>
+        <h3 class="case__title">Sortir d'un canal unique</h3>
+        <p class="case__ctx"><span class="label">Contexte</span> 80&nbsp;% des clients venaient d'un seul canal payant dont le coût doublait chaque année.</p>
+        <p class="case__act"><span class="label">Action</span> Ouverture de trois canaux en parallèle, contenu SEO adossé aux vraies requêtes clients, programme de parrainage.</p>
+        <p class="case__res"><span class="label">Résultat</span> Part du canal historique ramenée à 38&nbsp;%, coût d'acquisition global en baisse de 41&nbsp;%.</p>
+      </li>
+      <li class="case" data-reveal data-reveal-delay="120">
+        <p class="case__num">02</p>
+        <h3 class="case__title">Réparer une activation qui fuyait</h3>
+        <p class="case__ctx"><span class="label">Contexte</span> Un inscrit sur cinq seulement atteignait le moment où le produit devient utile.</p>
+        <p class="case__act"><span class="label">Action</span> Vingt entretiens d'utilisateurs perdus, refonte des sept premiers jours, séquence in-app contextuelle.</p>
+        <p class="case__res"><span class="label">Résultat</span> Activation portée à 47&nbsp;%, rétention à 6 mois +34&nbsp;pts.</p>
+      </li>
+      <li class="case" data-reveal data-reveal-delay="240">
+        <p class="case__num">03</p>
+        <h3 class="case__title">Faire parler le produit comme ses clients</h3>
+        <p class="case__ctx"><span class="label">Contexte</span> Un discours écrit par des ingénieurs pour des ingénieurs, face à des acheteurs métier.</p>
+        <p class="case__act"><span class="label">Action</span> Reconstruction du message à partir du vocabulaire réel des clients, refonte du site et des supports de vente.</p>
+        <p class="case__res"><span class="label">Résultat</span> Conversion essai → payant +18&nbsp;%, cycle de vente raccourci de 3 semaines.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ══ Bandeau défilant ═════════════════════════════════════════════════ -->
+<!-- Le bandeau porte data-section : sans ça, le fond repasserait au sombre
+     le temps de le traverser, puisqu'aucune section n'occuperait l'écran. -->
+<div class="marquee" data-marquee data-section data-theme="light" aria-hidden="true">
+  <div class="marquee__row" data-marquee-row>
+    <!-- ✎ --><span>Acquisition</span><i>✳</i><span>Product marketing</span><i>✳</i><span>Rétention</span><i>✳</i><span>Données</span><i>✳</i><span>Récit de marque</span><i>✳</i>
+  </div>
+</div>
+
+<!-- ══ 07 · FORMATION ═══════════════════════════════════════════════════ -->
+<section class="edu" id="formation" data-section data-theme="dark" data-index="07">
+  <div class="shell edu__shell">
+    <div class="edu__col">
+      <p class="label" data-reveal>07 — Formation</p>
+      <ul class="edu__list">
+        <!-- ✎ -->
+        <li data-reveal><span class="edu__year">2018</span><div><h3>Master Marketing &amp; Stratégie</h3><p>[Nom de l'école] — Bordeaux</p></div></li>
+        <li data-reveal data-reveal-delay="100"><span class="edu__year">2016</span><div><h3>Licence Économie-Gestion</h3><p>[Nom de l'université] — Bordeaux</p></div></li>
+      </ul>
+    </div>
+
+    <div class="edu__col">
+      <p class="label" data-reveal>Langues</p>
+      <ul class="edu__pills">
+        <!-- ✎ -->
+        <li data-reveal>Français <em>langue maternelle</em></li>
+        <li data-reveal data-reveal-delay="80">Anglais <em>courant — C1</em></li>
+        <li data-reveal data-reveal-delay="160">Espagnol <em>professionnel — B2</em></li>
+      </ul>
+
+      <p class="label label--spaced" data-reveal>Outils du quotidien</p>
+      <ul class="edu__tools">
+        <!-- ✎ -->
+        <li data-reveal>GA4</li><li data-reveal>BigQuery</li><li data-reveal>Amplitude</li>
+        <li data-reveal>Looker Studio</li><li data-reveal>Braze</li><li data-reveal>HubSpot</li>
+        <li data-reveal>Figma</li><li data-reveal>Notion</li><li data-reveal>SQL</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 08 · CONTACT ═════════════════════════════════════════════════════ -->
+<section class="contact" id="contact" data-section data-theme="dark" data-index="08">
+  <div class="shell">
+    <p class="label" data-reveal>08 — Contact</p>
+    <h2 class="contact__title" data-split="chars">Travaillons&nbsp;ensemble</h2>
+
+    <div class="contact__actions">
+      <!-- ✎ L'adresse apparaît deux fois : lien mailto et copie en un clic. -->
+      <a class="contact__mail" href="mailto:cartier.emile@gmail.com" data-magnetic data-cursor-text="Écrire">
+        cartier.emile@gmail.com
+      </a>
+      <button class="btn btn--ghost" data-copy="cartier.emile@gmail.com"><span>Copier l'adresse</span></button>
+    </div>
+
+    <ul class="contact__links">
+      <!-- ✎ Remplacez les # par vos vraies URL. `data-alt` est le libellé qui
+           remonte au survol : gardez-le identique au texte visible. -->
+      <li><a href="#" rel="me noopener" data-alt="LinkedIn"><span>LinkedIn</span></a></li>
+      <li><a href="#" rel="me noopener" data-alt="X / Twitter"><span>X / Twitter</span></a></li>
+      <li><a href="#" rel="me noopener" data-alt="GitHub"><span>GitHub</span></a></li>
+      <li><a href="tel:+33600000000" data-alt="+33 6 00 00 00 00"><span>+33 6 00 00 00 00</span></a></li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer class="footer" data-section data-theme="dark">
+  <div class="shell footer__shell">
+    <p>© <span data-year>2026</span> Emile Cartier</p>
+    <!-- Colophon : les jurys de prix regardent toujours comment c'est fait. -->
+    <p class="footer__colophon">
+      Fait main — HTML, CSS et JavaScript natif, sans dépendance.
+      Fond en WebGL, mouvement maison. Cormorant&nbsp;Garamond &amp; Inter.
+    </p>
+    <button class="footer__top" data-scroll-to data-target="#intro" data-magnetic>Haut de page ↑</button>
+  </div>
+</footer>
+
+<!-- Annonces pour lecteurs d'écran (copie de l'adresse, etc.) -->
+<p class="visually-hidden" role="status" aria-live="polite" data-live></p>
+
+<script type="module" src="./assets/js/main.js"></script>
+</body>
+</html>
