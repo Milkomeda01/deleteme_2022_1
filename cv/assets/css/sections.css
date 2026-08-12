@@ -92,20 +92,67 @@ section { position: relative; }
 /* ══ 02 · PROFIL ════════════════════════════════════════════════════════ */
 
 .manifesto { padding-block: var(--section-y); }
-.manifesto .shell { display: grid; gap: clamp(2.5rem, 6vw, 5rem); }
+.manifesto .shell { display: grid; gap: clamp(2.2rem, 5vw, 4rem); }
 
+/* Ce bloc doit tenir dans un écran : l'allumage mot à mot est piloté par la
+   position du texte dans la fenêtre, et un paragraphe plus haut qu'elle
+   serait déjà entièrement allumé avant d'avoir fini d'entrer. */
 .manifesto__text {
-  max-width: 22ch;
+  max-width: 26ch;
   font-family: var(--font-display);
-  font-size: var(--t-xxl);
+  font-size: clamp(2rem, 5.2vw, 4.6rem);
   font-weight: 300;
-  line-height: 1.06;
+  line-height: 1.08;
   letter-spacing: -0.02em;
-  max-width: 20ch;
 }
 /* Chaque mot part éteint et s'allume quand le défilement l'atteint. */
 .js .manifesto__text .word { color: color-mix(in oklab, var(--fg) 16%, transparent); }
 .manifesto__text .word.is-lit { color: var(--fg); }
+
+/* ── L'axe de positionnement ─────────────────────────────────────────────
+   Un profil « entre les deux » se raconte mal en paragraphe et très bien en
+   une image. Le curseur part du côté métier et vient se poser au milieu :
+   le mouvement dit l'idée avant que la légende ne soit lue. */
+
+.axis { display: grid; gap: 1.2rem; max-width: 46rem; }
+
+.axis__rail {
+  display: flex; align-items: center; gap: clamp(0.8rem, 2.5vw, 1.8rem);
+  padding-block: 0.6rem;
+}
+.axis__end {
+  flex: none;
+  font-family: var(--font-mono); font-size: 0.625rem;
+  letter-spacing: 0.12em; text-transform: uppercase; line-height: 1.5;
+  color: var(--fg-dim);
+}
+.axis__end--right { text-align: right; }
+
+.axis__line {
+  position: relative; flex: 1 1 4rem; height: 1px;
+  background: linear-gradient(90deg, var(--line), var(--accent), var(--line));
+}
+/* Les deux bornes, pour que la ligne ait un début et une fin lisibles. */
+.axis__line::before, .axis__line::after {
+  content: ''; position: absolute; top: -3px; width: 1px; height: 7px;
+  background: var(--line);
+}
+.axis__line::before { left: 0; }
+.axis__line::after { right: 0; }
+
+.axis__dot {
+  position: absolute; top: 50%; left: 4%;
+  width: 11px; height: 11px; margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 5px color-mix(in oklab, var(--accent) 22%, transparent),
+              0 0 22px color-mix(in oklab, var(--accent) 55%, transparent);
+  transition: left 1.8s var(--ease-expo) 0.15s;
+}
+.axis.is-in .axis__dot { left: 50%; }
+
+.axis__note { max-width: 52ch; font-size: var(--t-sm); line-height: 1.6; color: var(--fg-dim); }
+.axis__note strong { color: var(--fg); font-weight: 500; }
 
 .facts { display: grid; gap: 1.6rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
 .facts dt {

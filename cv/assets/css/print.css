@@ -17,7 +17,7 @@ body { background: #fff !important; color: #000 !important; font-size: 10.5pt; l
 .loader, .cursor, .grain, .topbar, .menu, .progress,
 .hero__canvas, .hero__veil, .hero__scroll, .marquee,
 .btn, .footer__top, .track__hint, .skip-link,
-.job--end, .demo { display: none !important; }
+.job--end, .demo, .axis__rail { display: none !important; }
 
 /* Aucune animation ne doit laisser un élément invisible sur le papier. */
 [data-reveal], .split__i, .word { opacity: 1 !important; translate: none !important; }
@@ -41,6 +41,7 @@ section { break-inside: auto; padding-block: 0 8mm !important; min-height: 0 !im
 .hero__clock, .hero__meta { display: none !important; }
 
 .manifesto__text { font-size: 13pt !important; max-width: none !important; }
+.axis { gap: 2mm; margin-bottom: 4mm; }
 .facts { gap: 3mm 8mm; }
 
 .stats__grid { border: 0; background: none; gap: 4mm; grid-template-columns: repeat(4, 1fr); }

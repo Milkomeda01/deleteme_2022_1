@@ -29,7 +29,7 @@ dans le fichier : chaque bloc marqué est un endroit à remplir.
 | --- | --- |
 | Titre, description, URL, image de partage | `<head>`, bloc ✎ MÉTA |
 | Nom, poste, phrase d'accroche | section `#intro` |
-| Pitch et fiche signalétique (poste visé, dispo, secteurs) | `#manifeste` |
+| Pitch, axe de positionnement, fiche signalétique | `#manifeste` |
 | Les quatre chiffres | `#chiffres` — `data-to` = valeur finale du compteur |
 | Les expériences | `#parcours` — un `<li class="job">` par poste, la piste s'allonge seule |
 | Les expertises | `#expertises` |
@@ -44,6 +44,17 @@ Deux détails à ne pas oublier :
 - le bandeau `[data-demo]` (« contenu de démonstration ») **doit être
   supprimé** une fois le vrai contenu en place, ainsi que la règle `.demo`
   dans `assets/css/base.css`.
+
+### L'axe de positionnement
+
+Le bloc `.axis` de la section Profil place un curseur entre « métier &
+marketing » et « technique & développement ». Il part du côté gauche et vient
+se poser au milieu quand la section entre à l'écran — c'est la réponse en une
+image à la première question d'un recruteur devant un profil de chef de
+projet : « plutôt fonctionnel ou plutôt technique ? »
+
+Pour décaler le curseur, il suffit de changer `left: 50%` dans la règle
+`.axis.is-in .axis__dot` (`assets/css/sections.css`).
 
 ### Changer la direction artistique
 
