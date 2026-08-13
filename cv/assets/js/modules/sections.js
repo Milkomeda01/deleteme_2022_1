@@ -34,10 +34,19 @@ export function initCounters() {
   const fmt = (v, d) =>
     v.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
 
+  const final = (el) => fmt(Number(el.dataset.to), Number(el.dataset.decimals || 0));
+  const printing = () => window.matchMedia('print').matches;
+
+  // Les animations en cours, pour pouvoir les interrompre : tant qu'une boucle
+  // tourne, elle réécrit la valeur à chaque image et écrase tout le reste.
+  const running = new Map();
+
+  // Le HTML contient déjà la valeur finale — on ne la remet donc jamais à zéro
+  // en dehors de l'animation elle-même, qui démarre de toute façon près de 0.
   const run = (el) => {
     const to = Number(el.dataset.to);
     const decimals = Number(el.dataset.decimals || 0);
-    if (prefersReducedMotion()) { el.textContent = fmt(to, decimals); return; }
+    if (prefersReducedMotion() || printing()) { el.textContent = final(el); return; }
 
     let t = 0;
     const dur = 1.6;
@@ -47,8 +56,9 @@ export function initCounters() {
       // exactement comme un compteur mécanique qui ralentit.
       const e = 1 - Math.pow(2, -10 * (t / dur));
       el.textContent = fmt(to * e, decimals);
-      if (t >= dur) { el.textContent = fmt(to, decimals); stop(); }
+      if (t >= dur) { el.textContent = fmt(to, decimals); running.delete(el); stop(); }
     });
+    running.set(el, stop);
   };
 
   const io = new IntersectionObserver((entries) => {
@@ -60,6 +70,19 @@ export function initCounters() {
   }, { threshold: 0.6 });
 
   nodes.forEach((n) => io.observe(n));
+
+  /* La feuille d'impression raccourcit brutalement la page : les compteurs
+     entrent alors dans le champ et démarrent leur animation, si bien que le
+     papier gardait la valeur atteinte à l'instant du Ctrl+P — « 13 M » au
+     lieu de « 14 M ». On interrompt donc les boucles en cours, puis on pose
+     le résultat. Interrompre d'abord : sinon l'image suivante l'écrase. */
+  const settle = () => {
+    for (const stop of running.values()) stop();
+    running.clear();
+    nodes.forEach((el) => { el.textContent = final(el); });
+  };
+  window.addEventListener('beforeprint', settle);
+  window.matchMedia('print').addEventListener('change', (e) => { if (e.matches) settle(); });
 }
 
 /* ══ PARCOURS — piste horizontale épinglée ══════════════════════════════ */
