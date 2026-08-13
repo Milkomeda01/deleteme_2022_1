@@ -186,7 +186,7 @@ export function initDive(root) {
 
     // Graduations : l'échelle de mesure, en rappel de la trajectographie.
     ctx.strokeStyle = dim;
-    ctx.globalAlpha = 0.28;
+    ctx.globalAlpha = 0.5;
     ctx.lineWidth = 1;
     for (let i = 0; i <= 10; i++) {
       const y = b.y + ((wy - b.y) * i) / 10;
@@ -200,9 +200,10 @@ export function initDive(root) {
 
     // L'eau
     ctx.fillStyle = accent;
-    ctx.globalAlpha = 0.07;
+    ctx.globalAlpha = 0.18;
     ctx.fillRect(0, wy, W, H - wy);
-    ctx.globalAlpha = 0.55;
+    ctx.globalAlpha = 0.95;
+    ctx.lineWidth = 1.5;
     ctx.strokeStyle = accent;
     ctx.beginPath();
     ctx.moveTo(0, wy);
@@ -212,14 +213,14 @@ export function initDive(root) {
 
     // Le plongeoir
     ctx.strokeStyle = ink;
-    ctx.globalAlpha = 0.5;
-    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.9;
+    ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(b.x - W * 0.11, b.y + 9);
     ctx.lineTo(b.x + 10, b.y + 9);
     ctx.stroke();
-    ctx.globalAlpha = 0.22;
-    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.45;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(b.x - W * 0.09, b.y + 9);
     ctx.lineTo(b.x - W * 0.09, wy);
@@ -229,16 +230,16 @@ export function initDive(root) {
     // La trajectoire, tracée derrière le plongeur
     if (s.trail.length > 1) {
       ctx.strokeStyle = accent;
-      ctx.globalAlpha = 0.30;
-      ctx.lineWidth = 1;
+      ctx.globalAlpha = 0.6;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(s.trail[0].x, s.trail[0].y);
       for (const p of s.trail) ctx.lineTo(p.x, p.y);
       ctx.stroke();
-      ctx.globalAlpha = 0.5;
+      ctx.globalAlpha = 1;
       for (let i = 0; i < s.trail.length; i += 9) {
         ctx.fillStyle = accent;
-        ctx.fillRect(s.trail[i].x - 1, s.trail[i].y - 1, 2, 2);
+        ctx.fillRect(s.trail[i].x - 1.5, s.trail[i].y - 1.5, 3, 3);
       }
       ctx.globalAlpha = 1;
     }
@@ -246,7 +247,7 @@ export function initDive(root) {
     // Les gouttes
     ctx.fillStyle = accent;
     for (const d of s.drops) {
-      ctx.globalAlpha = clamp(d.life, 0, 1) * 0.8;
+      ctx.globalAlpha = clamp(d.life, 0, 1);
       ctx.fillRect(d.x - 1.5, d.y - 1.5, 3, 3);
     }
     ctx.globalAlpha = 1;
@@ -259,24 +260,28 @@ export function initDive(root) {
       ctx.rotate(s.angle);
       ctx.strokeStyle = ink;
       ctx.lineCap = 'round';
-      ctx.lineWidth = 3 + 3 * s.tuck;
+      ctx.lineWidth = 4 + 4 * s.tuck;
+      // Un halo léger le détache de l'eau et du fond.
+      ctx.shadowColor = ink;
+      ctx.shadowBlur = 12;
       ctx.beginPath();
       ctx.moveTo(0, -len / 2);
       ctx.lineTo(0, len / 2);
       ctx.stroke();
       ctx.fillStyle = ink;
       ctx.beginPath();
-      ctx.arc(0, -len / 2 - 4, 4.5, 0, TAU);
+      ctx.arc(0, -len / 2 - 5, 5.5, 0, TAU);
       ctx.fill();
       ctx.restore();
     }
 
     // Invite à jouer, tant que rien n'a été lancé
     if (s.phase === 'idle') {
-      ctx.globalAlpha = 0.55 + Math.sin(s.idle * 2.2) * 0.25;
-      ctx.fillStyle = accent;
+      ctx.globalAlpha = 0.7 + Math.sin(s.idle * 2.2) * 0.3;
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(b.x, b.y, 15, 0, TAU);
+      ctx.arc(b.x, b.y, 16, 0, TAU);
       ctx.stroke();
       ctx.globalAlpha = 1;
     }

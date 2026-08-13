@@ -461,6 +461,12 @@ section { position: relative; }
 .dive__canvas {
   width: 100%;
   height: clamp(19rem, 46vh, 27rem);
+  /* Une surface propre, nettement plus claire que la section : le bassin se
+     confondait avec le fond, et « on ne voyait pas grand-chose ». */
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--fg) 9%, transparent),
+      color-mix(in oklab, var(--fg) 4%, transparent));
   /* Le doigt doit pouvoir faire défiler la page par-dessus le jeu. */
   touch-action: pan-y;
   cursor: pointer;
