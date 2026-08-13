@@ -222,7 +222,7 @@ section { position: relative; }
   padding: clamp(1.6rem, 2.6vw, 2.4rem);
   border: 1px solid var(--line-soft);
   border-radius: 0.25rem;
-  background: linear-gradient(180deg, rgb(255 255 255 / 0.028), transparent 60%);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--fg) 3%, transparent), transparent 60%);
   transition: border-color 0.5s var(--ease-soft), background-color 0.5s var(--ease-soft);
 }
 .job:hover { border-color: var(--line); }
@@ -454,7 +454,7 @@ section { position: relative; }
   border: 1px solid var(--line-soft);
   border-radius: 0.25rem;
   overflow: hidden;
-  background: linear-gradient(180deg, rgb(255 255 255 / 0.025), transparent 60%);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--fg) 3%, transparent), transparent 60%);
 }
 @media (max-width: 52rem) { .dive { grid-template-columns: 1fr; } }
 
@@ -526,3 +526,49 @@ section { position: relative; }
 }
 .hobbies li p { margin-top: 0.6rem; font-size: var(--t-sm); line-height: 1.4; color: var(--fg); }
 .hobbies li em { display: block; font-style: normal; font-size: 0.8125rem; color: var(--fg-dim); }
+
+/* ── Emplacements photo ───────────────────────────────────────────────────
+   Les images sont recadrées par `object-fit` et non déformées, et leur
+   rapport est réservé dans la mise en page : la page ne saute pas quand
+   elles arrivent. C'est ce qui coûte le plus cher en confort perçu. */
+
+.portrait { position: relative; overflow: hidden; border-radius: 0.25rem; }
+.portrait img {
+  /* `height: auto` est indispensable : les attributs width/height du HTML —
+     qui réservent la place et évitent les sauts de mise en page — imposent
+     sinon une hauteur fixe de 1000 px, et `aspect-ratio` ne s'applique plus. */
+  width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover;
+  /* Un peu plus grand que son cadre : la parallaxe peut le déplacer sans
+     jamais découvrir de bord. */
+  scale: 1.12;
+  will-change: transform;
+}
+.portrait figcaption {
+  position: absolute; left: 0; bottom: 0;
+  padding: 0.6rem 0.9rem;
+  font-family: var(--font-mono); font-size: 0.625rem;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: #edebe6;
+  background: linear-gradient(to top, rgb(6 7 11 / 0.75), transparent);
+  width: 100%;
+}
+
+/* Sur écran large, le portrait se range à droite du pitch. */
+@media (min-width: 60rem) {
+  .manifesto .shell {
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 22rem);
+    align-items: start;
+  }
+  .manifesto .label,
+  .manifesto__text,
+  .axis,
+  .manifesto__aside { grid-column: 1; }
+  .portrait { grid-column: 2; grid-row: 2 / span 3; }
+}
+
+.case__media { overflow: hidden; margin: -1px -1px 1.2rem; border-radius: 0.15rem; }
+.case__media img {
+  width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover;
+  scale: 1.1;
+  will-change: transform;
+}

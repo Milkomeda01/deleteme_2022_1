@@ -18,7 +18,7 @@ import { initLoader } from './modules/loader.js';
 import { initGL } from './modules/gl.js';
 import { initCursor, initMagnetic } from './modules/cursor.js';
 import { initNav } from './modules/nav.js';
-import { initManifesto, initCounters, initTrack, initSkills, initMarquee } from './modules/sections.js';
+import { initManifesto, initCounters, initTrack, initSkills, initMarquee, initParallax } from './modules/sections.js';
 import { initDive } from './modules/dive.js';
 import { initClock, initYear, initCopy, initPrint } from './modules/misc.js';
 
@@ -50,6 +50,7 @@ initLoader($('[data-loader]')).then(() => {
   safe('counters', () => initCounters());
   safe('track', () => initTrack());
   safe('marquee', () => initMarquee());
+  safe('parallax', () => initParallax());
   safe('dive', () => initDive($('[data-dive]')));
 
   document.documentElement.classList.add('is-ready');

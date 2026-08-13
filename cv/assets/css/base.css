@@ -166,16 +166,32 @@ a { color: inherit; text-decoration: none; }
   translate: -50% -50%;
 }
 .cursor__dot { width: 6px; height: 6px; background: var(--accent); }
+/* Un réticule de visée plutôt qu'un anneau : quatre équerres de cadrage,
+   dessinées en dégradés plats pour tenir dans un seul élément. Au survol
+   d'un élément actif, le cadre s'ouvre — la cible est acquise. C'est le
+   vocabulaire des deux ans passés à mesurer des trajectoires. */
 .cursor__ring {
   display: grid; place-items: center;
-  width: 42px; height: 42px;
-  border: 1px solid var(--line);
-  /* La différence rend l'anneau lisible sur fond sombre ET clair. */
+  width: 44px; height: 44px;
+  /* Le point est rond, le réticule est carré : sans cette remise à zéro, le
+     rayon hérité rognerait les quatre équerres. */
+  border-radius: 0;
+  color: #fff;
+  background-image:
+    linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor);
+  background-size: 11px 1px, 1px 11px, 11px 1px, 1px 11px,
+                   11px 1px, 1px 11px, 11px 1px, 1px 11px;
+  background-position: 0 0, 0 0, 100% 0, 100% 0,
+                       0 100%, 0 100%, 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  /* La différence rend le réticule lisible sur fond sombre ET clair. */
   mix-blend-mode: difference;
-  transition: width 0.4s var(--ease-back), height 0.4s var(--ease-back),
-              background-color 0.3s var(--ease-soft), border-color 0.3s;
+  transition: width 0.4s var(--ease-back), height 0.4s var(--ease-back);
 }
-.cursor.is-hover .cursor__ring { width: 76px; height: 76px; border-color: var(--accent); }
+.cursor.is-hover .cursor__ring { width: 74px; height: 74px; }
 .cursor.is-hover .cursor__dot { opacity: 0; }
 .cursor__label {
   font-family: var(--font-mono); font-size: 0.625rem;

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Emplacement photo">
+  <!-- Visuel d'attente. Remplacez le src des <img> par vos vraies photos ;
+       ce fichier pourra alors être supprimé. Le motif reprend le vocabulaire
+       du site : grille de mesure et réticule de visée. -->
+  <defs>
+    <pattern id="g" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M50 0H0V50" fill="none" stroke="#ffffff" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="800" height="1000" fill="#151821"/>
+  <rect width="800" height="1000" fill="url(#g)"/>
+
+  <!-- Réticule -->
+  <g stroke="#d8b26a" stroke-opacity="0.5" fill="none" stroke-width="1.5">
+    <circle cx="400" cy="470" r="70"/>
+    <path d="M400 370v40M400 530v40M300 470h40M460 470h40"/>
+  </g>
+
+  <!-- Coins de cadrage -->
+  <g stroke="#ffffff" stroke-opacity="0.22" fill="none" stroke-width="2">
+    <path d="M60 130V60h70M670 60h70v70M740 870v70h-70M130 940H60v-70"/>
+  </g>
+
+  <text x="400" y="600" text-anchor="middle"
+        font-family="ui-monospace, Menlo, monospace" font-size="21"
+        letter-spacing="5" fill="#8b90a0">PHOTO</text>
+</svg>

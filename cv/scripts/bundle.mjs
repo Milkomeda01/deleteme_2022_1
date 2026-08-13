@@ -47,20 +47,45 @@ const screenCss = ['tokens', 'base', 'sections']
 const printCss = read('assets/css/print.css');
 
 /* ── JavaScript ─────────────────────────────────────────────────────────────
-   L'ordre est celui des dépendances : chaque fichier ne peut utiliser que ce
-   que les précédents ont défini. `main.js` s'exécute, il vient donc en
+   La liste des modules est DÉDUITE du graphe d'imports, jamais écrite à la
+   main. Une liste manuelle finit toujours par oublier un fichier : c'est
+   arrivé avec le module du plongeon, absent du bundle alors que la version
+   multi-fichiers fonctionnait — le genre de panne qu'aucun test de la page
+   servie ne peut voir.
+
+   Parcours en profondeur d'abord : un fichier n'est écrit qu'une fois toutes
+   ses dépendances écrites, donc l'ordre d'exécution est correct par
+   construction, et `main.js` — le seul qui exécute quelque chose — sort en
    dernier. */
 
-const MODULES = [
-  'core/utils.js', 'core/scroll.js', 'core/split.js', 'core/reveal.js',
-  'modules/loader.js', 'modules/gl.js', 'modules/cursor.js', 'modules/nav.js',
-  'modules/sections.js', 'modules/misc.js', 'main.js',
-];
+const JS_ROOT = join(ROOT, 'assets/js');
 
-const js = MODULES.map((file) => {
-  const src = read(`assets/js/${file}`);
+function collectModules(entry, seen = new Set(), out = []) {
+  const rel = entry.replace(/\\/g, '/');
+  if (seen.has(rel)) return out;
+  seen.add(rel);
+
+  const src = readFileSync(join(JS_ROOT, rel), 'utf8');
+  const dir = dirname(rel);
+
+  for (const m of src.matchAll(/^\s*import\s[^'"]*['"]([^'"]+)['"]/gm)) {
+    const target = m[1];
+    if (!target.startsWith('.')) {
+      throw new Error(`${rel} importe « ${target} » : le bundle n'accepte que des chemins relatifs.`);
+    }
+    collectModules(join(dir, target), seen, out);
+  }
+
+  out.push(rel);
+  return out;
+}
+
+const modules = collectModules('main.js');
+
+const js = modules.map((file) => {
+  const src = readFileSync(join(JS_ROOT, file), 'utf8');
   return `/* ── ${file} ────────────────────────────── */\n` + src
-    .replace(/^import[^;]+;\s*$/gm, '')            // les liens entre fichiers
+    .replace(/^\s*import\s[^'"]*['"][^'"]+['"];?\s*$/gm, '')   // les liens entre fichiers
     .replace(/^export\s+(?=(?:function|const|class|let|var)\b)/gm, '');
 }).join('\n');
 
@@ -73,6 +98,16 @@ let body = html.slice(bodyStart, bodyEnd);
 
 // La balise de script externe est remplacée par le code concaténé.
 body = body.replace(/<script type="module"[^>]*><\/script>/, '');
+
+// Les images deviennent des data: URI — sans quoi le « fichier unique » ne
+// serait unique qu'en apparence et afficherait des cadres vides ailleurs.
+body = body.replace(/(src=")\.\/assets\/img\/([^"]+)(")/g, (_, a, file, z) => {
+  const buf = readFileSync(join(ROOT, 'assets/img', file));
+  const type = file.endsWith('.svg') ? 'image/svg+xml'
+    : file.endsWith('.png') ? 'image/png'
+    : file.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
+  return `${a}data:${type};base64,${buf.toString('base64')}${z}`;
+});
 
 const title = value('--title', (html.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || 'CV');
 const jsonLd = (html.match(/<script type="application\/ld\+json">[\s\S]*?<\/script>/) || [''])[0];
@@ -112,8 +147,22 @@ ${script}
 </html>`;
 
 // `resolve` accepte aussi bien un chemin absolu qu'un chemin relatif au projet.
+/* ── Garde-fou ──────────────────────────────────────────────────────────────
+   `main.js` protège chaque module derrière un try/catch : une fonction
+   manquante y devient un simple avertissement en console, et la page continue
+   comme si de rien n'était. C'est exactement ce qui a laissé passer un jeu
+   absent du bundle. On vérifie donc ici que tout ce que `main.js` appelle
+   existe bien dans le fichier produit. */
+
+const called = [...read('assets/js/main.js').matchAll(/\b(init[A-Z]\w*)\s*\(/g)].map((m) => m[1]);
+const missing = [...new Set(called)].filter((fn) => !new RegExp(`function\\s+${fn}\\b`).test(js));
+if (missing.length) {
+  console.error(`Fonctions appelées mais absentes du bundle : ${missing.join(', ')}`);
+  process.exit(1);
+}
+
 const dest = resolve(ROOT, value('--out', 'dist/index.html'));
 mkdirSync(dirname(dest), { recursive: true });
 writeFileSync(dest, out);
 
-console.log(`${dest} — ${(Buffer.byteLength(out) / 1024).toFixed(0)} Ko`);
+console.log(`${dest} — ${(Buffer.byteLength(out) / 1024).toFixed(0)} Ko · ${modules.length} modules`);

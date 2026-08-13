@@ -193,3 +193,29 @@ export function initMarquee() {
     row.style.transform = `translate3d(${-x}px, 0, 0)`;
   });
 }
+
+/* ══ PARALLAXE SUR LES IMAGES ═══════════════════════════════════════════ */
+
+export function initParallax() {
+  const nodes = $$('[data-parallax]');
+  if (!nodes.length || prefersReducedMotion()) return;
+
+  const items = nodes.map((el) => ({
+    el,
+    img: el.querySelector('img') || el.firstElementChild,
+    amount: Number(el.dataset.parallax) || 0.08,
+  })).filter((it) => it.img);
+
+  scroll.on(() => {
+    const vh = window.innerHeight;
+    for (const it of items) {
+      const r = it.el.getBoundingClientRect();
+      if (r.bottom < -100 || r.top > vh + 100) continue;
+      // −1 quand le cadre est en bas de l'écran, +1 quand il en sort par le
+      // haut. L'image se déplace donc à contresens de la page, ce qui donne
+      // la profondeur — l'agrandissement de 10 % évite d'en découvrir le bord.
+      const p = ((r.top + r.height / 2) / vh - 0.5) * -2;
+      it.img.style.translate = `0 ${p * it.amount * r.height}px`;
+    }
+  });
+}
