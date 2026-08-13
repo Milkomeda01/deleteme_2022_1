@@ -101,6 +101,7 @@
       <li><a href="#parcours" data-scroll-to data-nav-link>Parcours</a></li>
       <li><a href="#expertises" data-scroll-to data-nav-link>Expertises</a></li>
       <li><a href="#projets" data-scroll-to data-nav-link>Projets</a></li>
+      <li><a href="#hors-ecran" data-scroll-to data-nav-link>Hors écran</a></li>
       <li><a href="#contact" data-scroll-to data-nav-link>Contact</a></li>
     </ol>
   </nav>
@@ -122,7 +123,8 @@
       <li><a href="#expertises" data-scroll-to><span class="menu__i">05</span><span class="menu__t">Expertises</span></a></li>
       <li><a href="#projets"    data-scroll-to><span class="menu__i">06</span><span class="menu__t">Projets</span></a></li>
       <li><a href="#formation"  data-scroll-to><span class="menu__i">07</span><span class="menu__t">Formation</span></a></li>
-      <li><a href="#contact"    data-scroll-to><span class="menu__i">08</span><span class="menu__t">Contact</span></a></li>
+      <li><a href="#hors-ecran" data-scroll-to><span class="menu__i">08</span><span class="menu__t">Hors écran</span></a></li>
+      <li><a href="#contact"    data-scroll-to><span class="menu__i">09</span><span class="menu__t">Contact</span></a></li>
     </ol>
   </nav>
   <div class="menu__aside">
@@ -141,7 +143,7 @@
 <div class="progress" aria-hidden="true">
   <span class="progress__index" data-progress-index>01</span>
   <span class="progress__rail"><i data-progress-bar></i></span>
-  <span class="progress__total">08</span>
+  <span class="progress__total">09</span>
 </div>
 
 <main id="contenu">
@@ -498,21 +500,57 @@
         <li data-reveal>Linux</li>
       </ul>
 
-      <p class="label label--spaced" data-reveal>Hors écran</p>
-      <p class="edu__note" data-reveal>
-        <!-- ✎ Douze ans de badminton en compétition en disent plus long sur
-             la constance qu'une ligne « rigoureux » dans une liste. -->
-        Plongeon acrobatique et badminton en compétition, douze ans pour le
-        second. Plongée sous-marine niveau&nbsp;1. Piano, photographie, vidéo.
-      </p>
     </div>
   </div>
 </section>
 
-<!-- ══ 08 · CONTACT ═════════════════════════════════════════════════════ -->
-<section class="contact" id="contact" data-section data-theme="dark" data-index="08">
+<!-- ══ 08 · HORS ÉCRAN ══════════════════════════════════════════════════ -->
+<section class="play" id="hors-ecran" data-section data-theme="dark" data-index="08">
   <div class="shell">
-    <p class="label" data-reveal>08 — Contact</p>
+    <p class="label" data-reveal>08 — Hors écran</p>
+    <h2 class="play__title" data-split="chars">Cinq ans de plongeon</h2>
+    <p class="play__lede" data-reveal>
+      <!-- ✎ Le lien entre le sport et le métier. C'est ce qui justifie que
+           cette section existe sur un CV plutôt que sur un blog. -->
+      Une parabole, des rotations, un angle d'entrée jugé au degré près.
+      J'ai passé cinq ans à répéter le même geste jusqu'à ce qu'il tienne —
+      et douze ans de badminton en compétition à côté. C'est le même métier
+      que le mien&nbsp;: recommencer jusqu'à ce que ça sorte propre.
+    </p>
+
+    <figure class="dive" data-dive data-reveal>
+      <canvas class="dive__canvas" data-dive-canvas tabindex="0"
+              role="application"
+              aria-label="Jeu de plongeon : cliquez ou appuyez sur Entrée pour vous élancer, maintenez pour grouper."></canvas>
+      <figcaption class="dive__panel">
+        <div class="dive__score">
+          <span class="label">Note</span>
+          <span class="dive__note" data-dive-note>—</span>
+        </div>
+        <p class="dive__detail" data-dive-detail>Le corps groupé tourne plus vite&nbsp;: c'est la conservation du moment cinétique, et c'est toute la difficulté.</p>
+        <div class="dive__meta">
+          <p class="dive__hint" data-dive-hint>Cliquez pour vous élancer</p>
+          <p class="dive__best"><span class="label">Meilleure note</span> <span data-dive-best>—</span></p>
+        </div>
+      </figcaption>
+    </figure>
+
+    <ul class="hobbies">
+      <!-- ✎ La durée d'abord : c'est elle qui dit la constance. -->
+      <li data-reveal><span class="hobbies__n">12</span><span class="hobbies__u">ans</span><p>Badminton <em>compétition</em></p></li>
+      <li data-reveal data-reveal-delay="80"><span class="hobbies__n">5</span><span class="hobbies__u">ans</span><p>Plongeon acrobatique <em>compétition</em></p></li>
+      <li data-reveal data-reveal-delay="160"><span class="hobbies__n">3</span><span class="hobbies__u">ans</span><p>Natation</p></li>
+      <li data-reveal data-reveal-delay="240"><span class="hobbies__n">3</span><span class="hobbies__u">ans</span><p>Tennis</p></li>
+      <li data-reveal data-reveal-delay="320"><span class="hobbies__n">N1</span><span class="hobbies__u"></span><p>Plongée sous-marine</p></li>
+      <li data-reveal data-reveal-delay="400"><span class="hobbies__n">·</span><span class="hobbies__u"></span><p>Piano, photographie, vidéo, voyages</p></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ 09 · CONTACT ═════════════════════════════════════════════════════ -->
+<section class="contact" id="contact" data-section data-theme="dark" data-index="09">
+  <div class="shell">
+    <p class="label" data-reveal>09 — Contact</p>
     <h2 class="contact__title" data-split="chars">Travaillons&nbsp;ensemble</h2>
 
     <div class="contact__actions">

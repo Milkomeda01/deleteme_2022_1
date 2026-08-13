@@ -17,7 +17,7 @@ body { background: #fff !important; color: #000 !important; font-size: 10.5pt; l
 .loader, .cursor, .grain, .topbar, .menu, .progress,
 .hero__canvas, .hero__veil, .hero__scroll, .marquee,
 .btn, .footer__top, .track__hint, .skip-link,
-.job--end, .axis__rail { display: none !important; }
+.job--end, .axis__rail, .dive { display: none !important; }
 
 /* Aucune animation ne doit laisser un élément invisible sur le papier. */
 [data-reveal], .split__i, .word { opacity: 1 !important; translate: none !important; }
@@ -63,6 +63,13 @@ section { break-inside: auto; padding-block: 0 8mm !important; min-height: 0 !im
 .skill__head { padding: 2mm 0 !important; }
 .skill__head::before { display: none; }   /* le fond de survol n'a rien à faire là */
 .skill__name { font-size: 12pt !important; }
+
+/* « Hors écran » : le jeu saute, la collection reste — un recruteur lit
+   « 12 ans de badminton » aussi bien sur papier. */
+.play__title { font-size: 14pt !important; }
+.hobbies { display: flex !important; flex-wrap: wrap; gap: 3mm 8mm; border: 0; background: none; }
+.hobbies li { padding: 0; background: none; }
+.hobbies__n { font-size: 13pt !important; }
 
 .case { padding: 0 0 4mm; background: none; break-inside: avoid; }
 .work__list { display: block; border: 0; background: none; }
